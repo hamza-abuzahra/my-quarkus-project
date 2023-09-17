@@ -2,9 +2,11 @@ package com.example;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -18,12 +20,12 @@ import jakarta.transaction.Transactional;
 public class ProductRepositoryTest {
 
     @Inject
-    private ProductRepository repository;
+    private IProductRepository repository;
 
     @AfterEach
     @Transactional
     void tearDown() {
-        repository.deleteAll();
+        repository.deleteAllProducts();
     }
     @Test
     @Transactional
@@ -32,9 +34,9 @@ public class ProductRepositoryTest {
         Product product = new Product("apple", "a red delicious apple", 12.3f);
         Product product2 = new Product("table", "big table for 6", 120.99f);
         Product product3 = new Product("car", "very fast car", 15000.7f);
-        repository.persist(product);        
-        repository.persist(product2);
-        repository.persist(product3);
+        repository.createProduct(product);        
+        repository.createProduct(product2);
+        repository.createProduct(product3);
 
         // when
         List<Product> res = repository.allProducts(0, 2);
@@ -43,7 +45,7 @@ public class ProductRepositoryTest {
         assertEquals(res.get(0).getName(), "table");
         assertEquals(res.get(1).getName(), "car");
         assertEquals(res.size(), 2);
-    }   
+    }
 
     @Test
     public void testGetAllProductsEmpty() {
@@ -62,7 +64,7 @@ public class ProductRepositoryTest {
     public void testGetProductByIdOk() {
         // given
         Product product = new Product("car", "very fast car", 15000.7f);
-        repository.persist(product);
+        repository.createProduct(product);
 
         // when
         Optional<Product> resOptional = repository.getById(1L);
@@ -91,7 +93,7 @@ public class ProductRepositoryTest {
     public void testUpdateProductInfoOk() {
         // given
         Product product = new Product("car", "very fast car", 15000.7f);
-        repository.persist(product);
+        repository.createProduct(product);
 
         // when
         Product updatedProduct = new Product(2L, "car", "very nice car", 12000.0f);
@@ -99,7 +101,6 @@ public class ProductRepositoryTest {
 
         // then
         assertNotNull(resOptional.get());
-        // assertNotNull(resOptional.get());
         Product res = resOptional.get();
         assertEquals(res.getDescribtion(), "very nice car");
     }
@@ -107,7 +108,6 @@ public class ProductRepositoryTest {
     @Test
     public void testUpdateNonExistingProduct() {
         // given
-        
         // when
         Product updatedProduct = new Product(15L, "car", "beautiful car", 12f);
         Optional<Product> resOptional = repository.update(updatedProduct);
@@ -118,4 +118,28 @@ public class ProductRepositoryTest {
         assertTrue(resOptional2.isEmpty());
     }
 
+    @Test
+    @Transactional
+    public void testCreateProduct() {
+        // given
+        Product newProduct = new Product("new product", "new product", 23.8f);
+        // when 
+        repository.createProduct(newProduct);
+
+        // then
+        assertEquals(repository.allProducts(0, 2).get(0).getName(), "new product");
+    }
+
+    @Test
+    @Transactional
+    public void testDeleteProduct() {
+        // given
+        Product newProduct = new Product("new product", "new product", 23.8f);
+        repository.createProduct(newProduct);
+        // when 
+        Long idToDelete = repository.allProducts(0, 2).get(0).getId();
+        repository.deleteProductById(idToDelete);
+        // then
+        assertThrows(NoSuchElementException.class, () -> repository.getById(idToDelete).get());
+    }
 }

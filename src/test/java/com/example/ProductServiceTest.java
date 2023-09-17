@@ -17,6 +17,7 @@ import javax.naming.directory.InvalidAttributesException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -26,8 +27,10 @@ import jakarta.transaction.Transactional;
 public class ProductServiceTest {
 
     @InjectMock
-    private ProductRepository productRepository;
-    private ProductService productService;
+    private IProductRepository productRepository;
+    private IProductService productService;
+    private ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
+
 
     @BeforeEach
     void setup() {
@@ -40,8 +43,8 @@ public class ProductServiceTest {
         when(productRepository.getById(2L)).thenReturn(Optional.of(new Product("table", "dinning table", 2333f)));
         when(productRepository.update(new Product(2L,"object", "desc", 1.1f))).thenReturn(Optional.of(new Product("object", "desc", 1.1f)));
         when(productRepository.update(new Product(1L,"object", "desc", 1.1f))).thenReturn(Optional.empty());
-        when(productRepository.deleteById(1L)).thenReturn(false);
-        when(productRepository.deleteById(2L)).thenReturn(true);
+        when(productRepository.deleteProductById(1L)).thenReturn(false);
+        when(productRepository.deleteProductById(2L)).thenReturn(true);
     }
     
     @Test
@@ -54,30 +57,58 @@ public class ProductServiceTest {
 
     @Test
     public void testGetProductByIdOk() {
-        // when
-        assertEquals(Optional.empty(), productService.getProductById(1L));        
+        // when // then
         assertEquals("table", productService.getProductById(2L).get().getName());
+
+        verify(productRepository).getById(2L);
+    }
+
+    @Test
+    public void testGetProductByIdNotExists() {
+        // when // then
+        assertEquals(Optional.empty(), productService.getProductById(1L));        
 
         verify(productRepository).getById(1L);
     }
 
     @Test
     @Transactional
-    public void testNewProduct() {
+    public void testNewProductIdProvided() {
         // given
         Product newProduct = new Product(3L, "test", "test", 12000.0f);
-        Product newProduct2 = new Product(null, "testing no name", 1f);
-        Product newProduct3 = new Product("test no price", "testing", 0f);
-        Product goodNewProduct = new Product("good", "great", 12f);
-
-        // when 
+        // when  // then
         assertThrows(InvalidAttributesException.class, () -> productService.newProduct(newProduct), "Id must not be filled");
+    }
 
+    @Test
+    @Transactional
+    public void testNewProductNameNotProvided() {
+        // given
+        Product newProduct2 = new Product(null, "testing no name", 1f);
+        // when // then
         assertThrows(InvalidAttributesException.class, () -> productService.newProduct(newProduct2), "Name must be filled");
-
+    }
+    @Test
+    @Transactional
+    public void testNewProductPriceEqualsZero() {
+        // given
+        Product newProduct3 = new Product("test no price", "testing", 0f);
+        // when // then
         assertThrows(InvalidAttributesException.class, () -> productService.newProduct(newProduct3), "Price must be filled");
-
+    }
+    @Test
+    @Transactional
+    public void testNewProductOk() {
+        // given
+        Product goodNewProduct = new Product("good", "great", 12f);
+        // when // then
         assertDoesNotThrow(() -> productService.newProduct(goodNewProduct));
+        
+
+        verify(productRepository).createProduct(productArgumentCaptor.capture());
+
+        Product capturedProduct = productArgumentCaptor.getValue();
+        assertEquals(capturedProduct, goodNewProduct);
     }
 
     @Test
@@ -85,25 +116,38 @@ public class ProductServiceTest {
     public void testUpdateProductNotExists() {
         // given
         Product updateProduct = new Product("object", "desc", 1.1f);
-        // when
-        // then
-        assertThrows(InvalidParameterException.class, () -> productService.udpate(1L, updateProduct));
+        // when // then
+        assertThrows(InvalidParameterException.class, () -> productService.udpateProduct(1L, updateProduct));
     }
+
     @Test
     @Transactional
     public void testUpdateProductOk() {
         // given
         Product updateProduct = new Product("object", "desc", 1.1f);
-        // when
-        // then
-        productService.udpate(2L, updateProduct);
-        verify(productRepository).update(updateProduct);
+        // when // then
+        productService.udpateProduct(2L, updateProduct);
+
+        verify(productRepository).update(productArgumentCaptor.capture());
+
+        Product capturedProduct = productArgumentCaptor.getValue();
+
+        assertEquals(capturedProduct.getName(), updateProduct.getName());
     }
+    
     @Test
     @Transactional
-    public void testDelete() {
-        assertFalse(productRepository.deleteById(1L));
-        assertTrue(productRepository.deleteById(2L));
+    public void testDeleteExists() {
+        assertFalse(productService.deleteProduct(1L));
+        verify(productRepository).deleteProductById(1L);
     }
+
+    @Test
+    @Transactional
+    public void testDeleteDoesNotExist() {
+        assertTrue(productService.deleteProduct(2L));
+        verify(productRepository).deleteProductById(2L);
+    }
+
 
 }

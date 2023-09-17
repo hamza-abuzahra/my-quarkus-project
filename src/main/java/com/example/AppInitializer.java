@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class AppInitializer {
     // private final static Logger LOGGER = Logger.getLogger(AppInitializer.class.getName());
-    private final ProductResource productResource;
 
     void onStart(@Observes StartupEvent ev){
     //     LOGGER.info("The application is starting...");

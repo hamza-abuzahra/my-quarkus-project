@@ -42,7 +42,7 @@ public class ProductResourceTest {
     @Test
     public void testGetProductByIdEndpoint(){
         given()
-          .when().get("/api/products/7")
+          .when().get("/api/products/9")
           .then()
             .statusCode(200).body(
                 "name", is("table"),
@@ -54,7 +54,7 @@ public class ProductResourceTest {
         given()
         .when().get("/api/products/10000")
         .then()
-        .statusCode(400);
+        .statusCode(404);
     }
     @Test 
     public void testCreateProductEndpoint(){
@@ -65,7 +65,6 @@ public class ProductResourceTest {
         .post("api/products")
         .then()
         .statusCode(200);
-
     }
     @Test
     public void testUpdateProduct(){
@@ -73,18 +72,13 @@ public class ProductResourceTest {
         .body(new Product("banana", "a very ripe and yellow one", 23))
         .contentType(ContentType.JSON)
         .when()
-        .put("api/products/7")
+        .put("api/products/9")
         .then()
         .statusCode(200)
-        .body("id", is(7));
-        
-        given()
-        .when()
-        .get("api/products/7")
-        .then()
-        .statusCode(200)
-        .body("name", is("banana"));
-
+        .body("id", is(9), "name", is("banana"));
+    }
+    @Test
+    public void testUpdateProductNotExists(){
         // non exisiting product
         given()
         .body(new Product("banan", "a very ripe and yellow one", 23))
@@ -92,22 +86,25 @@ public class ProductResourceTest {
         .when()
         .put("api/products/10000")
         .then()
-        .statusCode(400);
+        .statusCode(404);
     }
     @Test
     public void testDeleteProduct(){
         given()
         .when()
-        .delete("api/products/7")
+        .delete("api/products/9")
         .then()
         .statusCode(200);
 
+    }
+
+    @Test
+    public void testDeleteProductNotExists(){
         // invalid 
         given()
         .when()
         .delete("api/products/2")
         .then()
-        .statusCode(304);
+        .statusCode(404);
     }
-
 }
