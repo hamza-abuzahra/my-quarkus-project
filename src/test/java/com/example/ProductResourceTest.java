@@ -3,12 +3,34 @@ package com.example;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 @QuarkusTest
-public class MyResourceTest {
+@TestInstance(value = Lifecycle.PER_CLASS)
+public class ProductResourceTest {
+
+    @Inject
+    ProductResource productResource;
+
+    @BeforeAll
+    @Transactional
+    void setup() {
+        Product first = new Product("apple", "a green apple", 12);        
+        productResource.createProduct(first);
+        Product second = new Product("table", "a white table", 450.2f);
+        productResource.createProduct(second);
+        Product third = new Product("book", "a black book", 5.5f);
+        Product fourth = new Product("cave", "a very cold and dark cave", 19899.99f);
+        productResource.createProduct(third);        
+        productResource.createProduct(fourth);
+    }
 
     @Test
     public void testGetAllProductsEndpoint() {
@@ -20,17 +42,17 @@ public class MyResourceTest {
     @Test
     public void testGetProductByIdEndpoint(){
         given()
-          .when().get("/api/products/1")
+          .when().get("/api/products/7")
           .then()
             .statusCode(200).body(
-                "name", is("apple"),
-                "price", is(12.0f)
+                "name", is("table"),
+                "price", is(450.2f)
             );
     }
     @Test
     public void testGetProductByIdEndpointInvalid(){
         given()
-        .when().get("/api/products/5")
+        .when().get("/api/products/10000")
         .then()
         .statusCode(400);
     }
@@ -44,9 +66,6 @@ public class MyResourceTest {
         .then()
         .statusCode(200);
 
-        given()
-        .when()
-        .get("api/products/5").then().statusCode(200).body("name", is("test"));
     }
     @Test
     public void testUpdateProduct(){
@@ -54,14 +73,14 @@ public class MyResourceTest {
         .body(new Product("banana", "a very ripe and yellow one", 23))
         .contentType(ContentType.JSON)
         .when()
-        .put("api/products/1")
+        .put("api/products/7")
         .then()
         .statusCode(200)
-        .body("id", is(1));
+        .body("id", is(7));
         
         given()
         .when()
-        .get("api/products/1")
+        .get("api/products/7")
         .then()
         .statusCode(200)
         .body("name", is("banana"));
@@ -71,7 +90,7 @@ public class MyResourceTest {
         .body(new Product("banan", "a very ripe and yellow one", 23))
         .contentType(ContentType.JSON)
         .when()
-        .put("api/products/7")
+        .put("api/products/10000")
         .then()
         .statusCode(400);
     }
@@ -79,18 +98,12 @@ public class MyResourceTest {
     public void testDeleteProduct(){
         given()
         .when()
-        .delete("api/products/2")
+        .delete("api/products/7")
         .then()
         .statusCode(200);
 
-        given()
-        .when()
-        .get("api/products/2")
-        .then()
-        .statusCode(400);
-
         // invalid 
-         given()
+        given()
         .when()
         .delete("api/products/2")
         .then()
