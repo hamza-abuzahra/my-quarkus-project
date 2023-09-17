@@ -4,9 +4,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
 import java.security.InvalidParameterException;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -31,13 +29,11 @@ public class ProductResource {
     @GET
     public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
-            List<Product> resList = productService.getProducts(offset, size);
-            if (resList.size() == 0) {
+            return Response.ok(productService.getProducts(offset, size)).build();
+        } catch (Exception e){
+            if (e instanceof InvalidParameterException){
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
-            return Response.ok(productService.getProducts(offset, size)).build();
-            
-        } catch (Exception e){
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("message", e.getMessage())).build();
         }
     }
@@ -45,13 +41,12 @@ public class ProductResource {
     @GET
     @Path("/{id}")
     public Response getProductById(@PathParam("id") Long id){
-        try{
-            Optional<Product> resOptional = productService.getProductById(id);
-            if (resOptional.isEmpty()){
-                return Response.status(Response.Status.NOT_FOUND).build();    
-            }
+        try{            
             return Response.ok(productService.getProductById(id).get()).build();
         } catch (Exception e){
+            if (e instanceof InvalidParameterException) {
+                return Response.status(Response.Status.NOT_FOUND).build();    
+            }
             return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("message", e.getMessage())).build();
         }
     }

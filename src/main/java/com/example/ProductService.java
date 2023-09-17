@@ -4,6 +4,7 @@ import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 import javax.naming.directory.InvalidAttributesException;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
@@ -18,13 +19,22 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getProducts(int offset, int size){
-        return this.productRepo.allProducts(offset, size);
+    public List<Product> getProducts(int offset, int size) throws InvalidParameterException{
+        List<Product> productsList = this.productRepo.allProducts(offset, size);
+        if (productsList.size() == 0){
+            throw new InvalidParameterException("No products in database");
+        } else{
+            return productsList;
+        }
     }    
 
     @Override
-    public Optional<Product> getProductById(Long id){
-       return this.productRepo.getById(id);
+    public Optional<Product> getProductById(Long id) throws InvalidParameterException{
+        Optional<Product> resOptional = this.productRepo.getById(id);
+        if (resOptional.isEmpty()){
+            throw new InvalidParameterException("No products found");    
+        }
+        return resOptional;
     }
 
     @Override

@@ -66,7 +66,7 @@ public class ProductServiceTest {
     @Test
     public void testGetProductByIdNotExists() {
         // when // then
-        assertEquals(Optional.empty(), productService.getProductById(1L));        
+        assertThrows(InvalidParameterException.class, () -> productService.getProductById(1L));        
 
         verify(productRepository).getById(1L);
     }
