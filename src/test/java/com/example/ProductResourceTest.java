@@ -59,12 +59,12 @@ public class ProductResourceTest {
     @Test 
     public void testCreateProductEndpoint(){
         given()
-        .body(new Product("test", "good thing", 3))
+        .body(new Product(1L, null, "good thing", 3))
         .contentType(ContentType.JSON)
         .when()
         .post("api/products")
         .then()
-        .statusCode(200);
+        .statusCode(400);
     }
     @Test
     public void testUpdateProduct(){

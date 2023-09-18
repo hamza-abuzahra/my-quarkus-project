@@ -1,12 +1,16 @@
 package com.example;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
-import javax.naming.directory.InvalidAttributesException;
+
+import com.example.ValidationGroups.Post;
+import com.example.ValidationGroups.Put;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
+import jakarta.validation.groups.ConvertGroup;
+import jakarta.validation.groups.Default;
 
 @ApplicationScoped
 public class ProductService implements IProductService {
@@ -19,58 +23,36 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<Product> getProducts(int offset, int size) throws InvalidParameterException{
-        List<Product> productsList = this.productRepo.allProducts(offset, size);
-        if (productsList.size() == 0){
-            throw new InvalidParameterException("No products in database");
-        } else{
-            return productsList;
-        }
+    public List<Product> getProducts(int offset, int size) {
+        List<Product> productsList = productRepo.allProducts(offset, size);
+        return productsList;
     }    
 
     @Override
-    public Optional<Product> getProductById(Long id) throws InvalidParameterException{
-        Optional<Product> resOptional = this.productRepo.getById(id);
-        if (resOptional.isEmpty()){
-            throw new InvalidParameterException("No products found");    
-        }
+    public Optional<Product> getProductById(Long id) {
+        Optional<Product> resOptional = productRepo.getById(id);
         return resOptional;
     }
 
     @Override
     @Transactional
-    public void newProduct(Product product) throws InvalidAttributesException{
-        if (product.getId() != null){
-            throw new InvalidAttributesException("Id must not be filled");
-        } 
-        if (product.getName() == null){
-            throw new InvalidAttributesException("Name must be filled");
-
-        }
-        if (product.getPrice() == 0.0f){
-            throw new InvalidAttributesException("Price must be filled");
-
-        }
-        this.productRepo.createProduct(product);
+    public void newProduct(@Valid @ConvertGroup(from=Default.class, to=Post.class) Product product){
+        productRepo.createProduct(product);
     }
 
     @Override
     @Transactional
-    public Product udpateProduct(Long id, Product product) throws InvalidParameterException{
+    public Optional<Product> udpateProduct(Long id, @Valid @ConvertGroup(from=Default.class, to=Put.class) Product product){
         product.setId(id);
-        Optional<Product> res = this.productRepo.update(product);
-        if (res.isEmpty()){
-            // LOGGER.info("res is null");
-            throw new InvalidParameterException("Product not found");
-        } else {
-            return res.get();
-        }
+        Optional<Product> res = productRepo.update(product);
+        return res;
     }
 
     @Override
     @Transactional
     public boolean deleteProduct(Long id){
-        return this.productRepo.deleteProductById(id);
+        return productRepo.deleteProductById(id);
     }
+
 }
 

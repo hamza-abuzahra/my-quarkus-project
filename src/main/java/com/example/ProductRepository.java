@@ -7,7 +7,6 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.persistence.NoResultException;
 
 @ApplicationScoped
 public class ProductRepository implements PanacheRepository<Product>, IProductRepository{
@@ -22,12 +21,17 @@ public class ProductRepository implements PanacheRepository<Product>, IProductRe
         Product product = null;
         try {
             product = this.findById(id);
-        } catch (NoResultException e){
+        } catch (Exception e){
             e.printStackTrace();
         }
         return Optional.ofNullable(product);
     }
     
+    @Override
+    public void createProduct(Product product) {
+        this.persist(product);
+    }
+
     @Override
     public Optional<Product> update(Product product){
         final Long id = product.getId();
@@ -45,15 +49,11 @@ public class ProductRepository implements PanacheRepository<Product>, IProductRe
     }
 
     @Override
-    public void createProduct(Product product) {
-        this.persist(product);
-    }
-
-    @Override
     public boolean deleteProductById(Long id) {
         return this.deleteById(id);
     }
 
+    // for testing purposes
     @Override
     public void deleteAllProducts() {
         this.deleteAll();
