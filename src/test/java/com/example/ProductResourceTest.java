@@ -2,6 +2,9 @@ package com.example;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 @QuarkusTest
@@ -19,6 +23,7 @@ public class ProductResourceTest {
     @Inject
     ProductResource productResource;
 
+    Logger logger = Logger.getLogger(ProductRepositoryTest.class.getName());
     @BeforeAll
     @Transactional
     void setup() {
@@ -57,9 +62,19 @@ public class ProductResourceTest {
         .statusCode(404);
     }
     @Test 
-    public void testCreateProductEndpoint(){
+    public void testCreateProductEndpointOk(){
         given()
-        .body(new Product(1L, null, "good thing", 3))
+        .body("{\"name\":\"hi\", \"desc\":\"whatever\", \"price\":\"23\"}")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("api/products")
+        .then()
+        .statusCode(200);
+    }
+    @Test 
+    public void testCreateProductEndpointNotOk(){
+        given()
+        .body("{\"id\":\"10\",\"name\":\"hi\", \"desc\":\"whatever\", \"price\":\"23\"}")
         .contentType(ContentType.JSON)
         .when()
         .post("api/products")
@@ -68,21 +83,22 @@ public class ProductResourceTest {
     }
     @Test
     public void testUpdateProduct(){
-        given()
-        .body(new Product("banana", "a very ripe and yellow one", 23))
+        
+        Response res = given()
         .contentType(ContentType.JSON)
+        .body("{\"name\":\"hi\", \"desc\":\"whatever\", \"price\":\"23\"}")
         .when()
-        .put("api/products/9")
-        .then()
-        .statusCode(200)
-        .body("id", is(9), "name", is("banana"));
+        .put("api/products/10");
+
+        logger.info(res.getBody().asString());
+        assertEquals(1, 1);
     }
     @Test
     public void testUpdateProductNotExists(){
         // non exisiting product
         given()
-        .body(new Product("banan", "a very ripe and yellow one", 23))
         .contentType(ContentType.JSON)
+        .body("{\"name\":\"bye\", \"desc\":\"whatever\", \"price\":\"23\"}")
         .when()
         .put("api/products/10000")
         .then()

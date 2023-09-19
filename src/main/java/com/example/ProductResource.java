@@ -1,13 +1,15 @@
 package com.example;
 
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.validation.ConstraintViolationException;
+import org.jboss.resteasy.reactive.RestPath;
+import org.jboss.resteasy.reactive.RestQuery;
+
+import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
@@ -15,9 +17,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
 
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,7 +31,7 @@ public class ProductResource {
     }
 
     @GET
-    public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
+    public Response getAllProdcuts(@RestQuery("offset") @DefaultValue("0") int offset, @RestQuery("size") @DefaultValue("5") int size){
         try {
             List<Product> listProducts = productService.getProducts(offset, size);
             if (listProducts.size() == 0) {
@@ -43,36 +45,42 @@ public class ProductResource {
 
     @GET
     @Path("/{id}")
-    public Response getProductById(@PathParam("id") Long id){
+    public Response getProductById(@RestPath("id") Long id){
         try{            
             Optional<Product> resProduct = productService.getProductById(id);
             if (resProduct.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "Product not found")).build(); 
             }
-            return Response.ok().build();
+            return Response.ok(resProduct.get()).build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }
 
     @POST
-    public Response createProduct(Product product){
+    public Response createProduct(@Valid Product product){
         try{
+            if (product.getId() != null){
+                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
+            }
             productService.newProduct(product);
             return Response.ok(product.getId()).build();
         }
         catch(Exception e) {
-            if (e instanceof ConstraintViolationException) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(((ConstraintViolationException) e).getConstraintViolations()).build();
-            }
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
+        //     // if (e instanceof ConstraintViolationException) {
+        //     //     return Response.status(Response.Status.BAD_REQUEST).entity((e.getMessage())).build();
+        //     // }
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
 
     @PUT
     @Path("/{id}")
-    public Response updateProduct(@PathParam("id") Long id, Product product){
-        try {
+    public Response updateProduct(@RestPath("id") Long id, @Valid Product product){
+        try{
+            if (product.getId() != null){
+                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
+            }
             Optional<Product> resOptional = productService.udpateProduct(id, product);
             if (resOptional.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "Product not found")).build();
@@ -80,16 +88,16 @@ public class ProductResource {
             return Response.ok(resOptional.get()).build();
         }
         catch (Exception e){
-            if (e instanceof ConstraintViolationException){
-                return Response.status(Response.Status.BAD_REQUEST).entity(((ConstraintViolationException) e).getConstraintViolations()).build();
-            }
+        //     if (e instanceof ConstraintViolationException){
+        //         return Response.status(Response.Status.BAD_REQUEST).entity(((ConstraintViolationException) e).getConstraintViolations()).build();
+        //     }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }
 
     @DELETE
     @Path("/{id}")
-    public Response deleteProduct(@PathParam("id") Long id){
+    public Response deleteProduct(@RestPath("id") Long id){
         try{
             boolean isDeleted = productService.deleteProduct(id);
             if (isDeleted){

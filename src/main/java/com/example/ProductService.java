@@ -3,14 +3,9 @@ package com.example;
 import java.util.List;
 import java.util.Optional;
 
-import com.example.ValidationGroups.Post;
-import com.example.ValidationGroups.Put;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
-import jakarta.validation.groups.ConvertGroup;
-import jakarta.validation.groups.Default;
+
 
 @ApplicationScoped
 public class ProductService implements IProductService {
@@ -36,13 +31,13 @@ public class ProductService implements IProductService {
 
     @Override
     @Transactional
-    public void newProduct(@Valid @ConvertGroup(from=Default.class, to=Post.class) Product product){
+    public void newProduct(Product product){
         productRepo.createProduct(product);
     }
 
     @Override
     @Transactional
-    public Optional<Product> udpateProduct(Long id, @Valid @ConvertGroup(from=Default.class, to=Put.class) Product product){
+    public Optional<Product> udpateProduct(Long id, Product product){
         product.setId(id);
         Optional<Product> res = productRepo.update(product);
         return res;
