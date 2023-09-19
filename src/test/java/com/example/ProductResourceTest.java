@@ -81,17 +81,65 @@ public class ProductResourceTest {
         .then()
         .statusCode(400);
     }
+    @Test 
+    public void testCreateProductEndpointNameNotProvided(){
+        given()
+        .body("{\"desc\":\"whatever\", \"price\":\"23\"}")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("api/products")
+        .then()
+        .statusCode(400);
+    }
+    @Test 
+    public void testCreateProductEndpointPriceIsZero(){
+        given()
+        .body("{\"name\":\"hi\",\"desc\":\"whatever\", \"price\":\"0\"}")
+        .contentType(ContentType.JSON)
+        .when()
+        .post("api/products")
+        .then()
+        .statusCode(400);
+    }
     @Test
     public void testUpdateProduct(){
-        
-        Response res = given()
+        given()
         .contentType(ContentType.JSON)
         .body("{\"name\":\"hi\", \"desc\":\"whatever\", \"price\":\"23\"}")
         .when()
-        .put("api/products/10");
-
-        logger.info(res.getBody().asString());
-        assertEquals(1, 1);
+        .put("api/products/10")
+        .then()
+        .statusCode(200);
+    }
+    @Test
+    public void testUpdateProductNameValidation(){
+        given()
+        .contentType(ContentType.JSON)
+        .body("{\"desc\":\"whatever\", \"price\":\"23\"}")
+        .when()
+        .put("api/products/10")
+        .then()
+        .statusCode(400);
+    }
+    @Test
+    public void testUpdateProductPriceValidation(){
+        given()
+        .contentType(ContentType.JSON)
+        .body("{\"name\":\"hi\",\"desc\":\"whatever\", \"price\":\"0\"}")
+        .when()
+        .put("api/products/10")
+        .then()
+        .statusCode(400);
+    }
+    @Test
+    public void testUpdateProductIdValidation(){
+        given()
+        .contentType(ContentType.JSON)
+        .body("{\"id\":\"2\",\"name\":\"hi\",\"desc\":\"whatever\", \"price\":\"0\"}")
+        .when()
+        .put("api/products/10")
+        .then()
+        .statusCode(400);
     }
     @Test
     public void testUpdateProductNotExists(){
