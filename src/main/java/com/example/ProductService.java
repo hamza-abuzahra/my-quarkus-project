@@ -11,7 +11,6 @@ import jakarta.transaction.Transactional;
 public class ProductService implements IProductService {
 
     private final IProductRepository productRepo;
-    // PanacheRepository<Product>
 
     public ProductService(IProductRepository products){
         this.productRepo = products;

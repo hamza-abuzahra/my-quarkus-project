@@ -11,11 +11,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name="products")
 @Data
+@Builder(toBuilder = true)
+@NoArgsConstructor
 @AllArgsConstructor
 @XmlRootElement
 public class Product implements Serializable {

@@ -1,13 +1,11 @@
 package com.example;
 
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.jboss.resteasy.reactive.RestPath;
-import org.jboss.resteasy.reactive.RestQuery;
 
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -17,9 +15,9 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,7 +29,7 @@ public class ProductResource {
     }
 
     @GET
-    public Response getAllProdcuts(@RestQuery("offset") @DefaultValue("0") int offset, @RestQuery("size") @DefaultValue("5") int size){
+    public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
             List<Product> listProducts = productService.getProducts(offset, size);
             if (listProducts.size() == 0) {
@@ -45,7 +43,7 @@ public class ProductResource {
 
     @GET
     @Path("/{id}")
-    public Response getProductById(@RestPath("id") Long id){
+    public Response getProductById(@PathParam("id") Long id){
         try{            
             Optional<Product> resProduct = productService.getProductById(id);
             if (resProduct.isEmpty()) {
@@ -76,7 +74,7 @@ public class ProductResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateProduct(@RestPath("id") Long id, @Valid Product product){
+    public Response updateProduct(@PathParam("id") Long id, @Valid Product product){
         try{
             if (product.getId() != null){
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
@@ -97,7 +95,7 @@ public class ProductResource {
 
     @DELETE
     @Path("/{id}")
-    public Response deleteProduct(@RestPath("id") Long id){
+    public Response deleteProduct(@PathParam("id") Long id){
         try{
             boolean isDeleted = productService.deleteProduct(id);
             if (isDeleted){
