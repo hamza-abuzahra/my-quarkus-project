@@ -65,9 +65,6 @@ public class ProductResource {
             return Response.ok(product.getId()).build();
         }
         catch(Exception e) {
-        //     // if (e instanceof ConstraintViolationException) {
-        //     //     return Response.status(Response.Status.BAD_REQUEST).entity((e.getMessage())).build();
-        //     // }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -86,9 +83,6 @@ public class ProductResource {
             return Response.ok(resOptional.get()).build();
         }
         catch (Exception e){
-        //     if (e instanceof ConstraintViolationException){
-        //         return Response.status(Response.Status.BAD_REQUEST).entity(((ConstraintViolationException) e).getConstraintViolations()).build();
-        //     }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }
