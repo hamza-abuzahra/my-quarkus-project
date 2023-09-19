@@ -2,7 +2,6 @@ package com.example;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.logging.Logger;
 
@@ -13,7 +12,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 @QuarkusTest
