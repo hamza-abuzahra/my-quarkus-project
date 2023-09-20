@@ -1,4 +1,4 @@
-package com.example;
+package com.example.presenters;
 
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -7,6 +7,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.example.domain.Product;
+import com.example.usecases.CreateProductUseCase;
+import com.example.usecases.DeleteProductUseCase;
+import com.example.usecases.GetProductByIdUseCase;
+import com.example.usecases.GetProductsUseCase;
+import com.example.usecases.UpdateProductUseCase;
+
+import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -23,15 +31,23 @@ import jakarta.ws.rs.core.Response;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class ProductResource {
-    private final IProductService productService;
-    public ProductResource(IProductService productService){
-        this.productService = productService;
-    }
+        
+    @Inject
+    private GetProductsUseCase getProductsUseCase;
+    @Inject
+    private GetProductByIdUseCase getProductByIdUseCase;
+    @Inject
+    private CreateProductUseCase createProductUseCase;
+    @Inject
+    private UpdateProductUseCase updateProductUseCase;
+    @Inject
+    private DeleteProductUseCase deleteProductUseCase;
+
 
     @GET
     public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
-            List<Product> listProducts = productService.getProducts(offset, size);
+            List<Product> listProducts = getProductsUseCase.getProducts(offset, size);
             if (listProducts.size() == 0) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "No prouducts found")).build();
             }
@@ -45,7 +61,7 @@ public class ProductResource {
     @Path("/{id}")
     public Response getProductById(@PathParam("id") Long id){
         try{            
-            Optional<Product> resProduct = productService.getProductById(id);
+            Optional<Product> resProduct = getProductByIdUseCase.getProductById(id);
             if (resProduct.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "Product not found")).build(); 
             }
@@ -61,7 +77,7 @@ public class ProductResource {
             if (product.getId() != null){
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
             }
-            productService.newProduct(product);
+            createProductUseCase.createProduct(product);
             return Response.ok(product.getId()).build();
         }
         catch(Exception e) {
@@ -76,7 +92,7 @@ public class ProductResource {
             if (product.getId() != null){
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
             }
-            Optional<Product> resOptional = productService.udpateProduct(id, product);
+            Optional<Product> resOptional = updateProductUseCase.updateProduct(id, product);
             if (resOptional.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "Product not found")).build();
             }   
@@ -91,7 +107,7 @@ public class ProductResource {
     @Path("/{id}")
     public Response deleteProduct(@PathParam("id") Long id){
         try{
-            boolean isDeleted = productService.deleteProduct(id);
+            boolean isDeleted = deleteProductUseCase.deleteProduct(id);
             if (isDeleted){
                 return Response.ok().entity(Map.of("message", "product with the id" + id + " deleted successfully")).build();
             }

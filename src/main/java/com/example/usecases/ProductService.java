@@ -1,14 +1,18 @@
-package com.example;
+package com.example.usecases;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.example.domain.IProductRepository;
+import com.example.domain.Product;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 
 
 @ApplicationScoped
-public class ProductService implements IProductService {
+public class ProductService implements GetProductsUseCase, GetProductByIdUseCase, 
+                CreateProductUseCase, UpdateProductUseCase, DeleteProductUseCase {
 
     private final IProductRepository productRepo;
 
@@ -24,29 +28,27 @@ public class ProductService implements IProductService {
 
     @Override
     public Optional<Product> getProductById(Long id) {
-        Optional<Product> resOptional = productRepo.getById(id);
+        Optional<Product> resOptional = productRepo.getProductById(id);
         return resOptional;
     }
 
     @Override
     @Transactional
-    public void newProduct(Product product){
+    public void createProduct(Product product){
         productRepo.createProduct(product);
     }
 
     @Override
     @Transactional
-    public Optional<Product> udpateProduct(Long id, Product product){
+    public Optional<Product> updateProduct(Long id, Product product){
         product.setId(id);
         Optional<Product> res = productRepo.update(product);
         return res;
     }
-
     @Override
     @Transactional
     public boolean deleteProduct(Long id){
         return productRepo.deleteProductById(id);
     }
-
 }
 
