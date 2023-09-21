@@ -35,12 +35,12 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
 
     @Override
     public Optional<Product> update(Product product) {
-        JpaProduct jpaProduct = mapDomainToJpa(product);
-        final Long id = jpaProduct.getId();
+        // JpaProduct jpaProduct = mapDomainToJpa(product);
+        final Long id = product.getId();
     
         Optional<JpaProduct> savedOpt = findByIdOptional(id);
         if (savedOpt.isEmpty()){
-            return Optional.of(mapJpaToDomain(savedOpt.get()));
+            return Optional.empty();
         }
         JpaProduct saved = savedOpt.get();
         saved.setName(product.getName());

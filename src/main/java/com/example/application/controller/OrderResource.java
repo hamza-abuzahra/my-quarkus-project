@@ -5,9 +5,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import com.example.application.usecases.CreateOrderUseCase;
-import com.example.application.usecases.GetOrderByIdUseCase;
-import com.example.application.usecases.GetOrdersUseCase;
+import com.example.application.usecases.order.CreateOrderUseCase;
+import com.example.application.usecases.order.GetOrderByIdUseCase;
+import com.example.application.usecases.order.GetOrdersUseCase;
 import com.example.domain.Order;
 
 import jakarta.inject.Inject;

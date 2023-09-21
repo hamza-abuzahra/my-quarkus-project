@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import com.example.application.usecases.CreateProductUseCase;
-import com.example.application.usecases.DeleteProductUseCase;
-import com.example.application.usecases.GetProductByIdUseCase;
-import com.example.application.usecases.GetProductsUseCase;
-import com.example.application.usecases.UpdateProductUseCase;
+import com.example.application.usecases.product.CreateProductUseCase;
+import com.example.application.usecases.product.DeleteProductUseCase;
+import com.example.application.usecases.product.GetProductByIdUseCase;
+import com.example.application.usecases.product.GetProductsUseCase;
+import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.Product;
 
 import jakarta.inject.Inject;
@@ -74,7 +74,7 @@ public class ProductResource {
     }
 
     @POST
-    public Response createProductEndpoint(@Valid Product product){
+    public Response createProduct(@Valid Product product){
         try{
             if (product.getId() != null){
                 logger.info("I am here for trying cus id is provided");
@@ -106,6 +106,7 @@ public class ProductResource {
             return Response.ok(resOptional.get()).build();
         }
         catch (Exception e){
+            logger.info("i am here" + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }

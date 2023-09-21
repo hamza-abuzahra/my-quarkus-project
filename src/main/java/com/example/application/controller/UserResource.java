@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-import com.example.application.usecases.CreateUserUseCase;
-import com.example.application.usecases.GetUserByIdUseCase;
+import com.example.application.usecases.user.CreateUserUseCase;
+import com.example.application.usecases.user.GetUserByIdUseCase;
 import com.example.domain.User;
 
 import jakarta.inject.Inject;

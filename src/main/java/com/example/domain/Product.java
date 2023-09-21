@@ -2,7 +2,11 @@ package com.example.domain;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+@AllArgsConstructor
+@NoArgsConstructor
 public class Product {
     
     private Long id;
@@ -15,14 +19,10 @@ public class Product {
     @Positive(message="Price must be a positive number.")
     private float price;
     
-    public Product(Long id, String name, String desc, float price) {
-        this.id = id;
+    public Product(String name, String desc, float price) {
         this.name = name;
         this.describtion = desc;
         this.price = price;
-    }
-
-    public Product() {
     }
 
     public Long getId() {
