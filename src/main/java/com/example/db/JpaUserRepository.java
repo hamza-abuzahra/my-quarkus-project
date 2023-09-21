@@ -1,5 +1,6 @@
 package com.example.db;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.example.domain.IUserRepository;
@@ -7,6 +8,7 @@ import com.example.domain.User;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class JpaUserRepository implements IUserRepository, PanacheRepository<JpaUser>{
@@ -23,8 +25,18 @@ public class JpaUserRepository implements IUserRepository, PanacheRepository<Jpa
     }
 
     @Override
+    @Transactional
     public void createUser(User user) {
         persist(mapDomainToJpa(user));
+    }
+
+    @Override
+    public boolean isEmailUsed(String email) {
+        List<JpaUser> jpaUser = find("email = ?1", email).list();
+        if (jpaUser.size() > 0) {
+            return true;
+        }
+        return false;
     }
 
     private static JpaUser mapDomainToJpa(User user){

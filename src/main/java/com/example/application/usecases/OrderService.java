@@ -1,4 +1,4 @@
-package com.example.usecases;
+package com.example.application.usecases;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
-public class OrderService implements CreateOrderUseCase, GetOrdersUseCase{
+public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOrderByIdUseCase{
 
     @Inject
     private IOrderRepository orderRepository;
@@ -44,6 +44,11 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase{
     @Override
     public List<Order> getOrders() {
         return orderRepository.allOrders();
+    }
+
+    @Override
+    public Optional<Order> getOrderById(Long id) {
+        return orderRepository.getOrderById(id);
     }
     
 }

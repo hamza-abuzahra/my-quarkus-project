@@ -1,6 +1,7 @@
 package com.example.db;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.domain.IOrderRepository;
@@ -24,13 +25,22 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
         return mapJpaListToDomainList(jpaOrders);
     }
 
+    @Override
+    public Optional<Order> getOrderById(Long id) {
+        JpaOrder order = findById(id);
+        if (order == null){
+            return Optional.empty();
+        }
+        return Optional.of(mapJpaToDomain(order));
+    }
+
     private static JpaOrder mapDomainToJpa(Order order){
         JpaOrder jpaOrder = new JpaOrder();
         jpaOrder.setUserId(order.getUserId());
         jpaOrder.setProductId(order.getProductId());
         return jpaOrder;
     }
-
+    
     private static Order mapJpaToDomain(JpaOrder jpaOrder){
         Order order = new Order();
         order.setUserId(jpaOrder.getUserId());
@@ -44,4 +54,5 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
             .map(JpaOrderRepository::mapJpaToDomain)
             .collect(Collectors.toList());
     }
+
 }

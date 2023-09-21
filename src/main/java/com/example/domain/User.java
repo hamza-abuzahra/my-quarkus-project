@@ -9,8 +9,11 @@ public class User {
     
     @NotBlank(message="name can not be blank")
     private String fname;
+
     private String lname;
+    
     @Email(message="email not valid")
+    @NotBlank(message="email not provided")
     private String email;
 
     public User() {

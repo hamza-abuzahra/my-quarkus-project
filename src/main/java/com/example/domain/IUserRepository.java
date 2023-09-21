@@ -5,9 +5,10 @@ import java.util.Optional;
 
 public interface IUserRepository {
     // public List<User> allUsers(int offset, int size);
-    public Optional<User> getUserById(Long id);
+    Optional<User> getUserById(Long id);
+    boolean isEmailUsed(String email);
     // public Optional<User> update(User user);
-    public void createUser(User user);
-    // public boolean deleteProductById(Long id);
-    // public void deleteAllProducts();
+    void createUser(User user);
+    // public boolean deleteUsertById(Long id);
+    // public void deleteAllUsers();
 }

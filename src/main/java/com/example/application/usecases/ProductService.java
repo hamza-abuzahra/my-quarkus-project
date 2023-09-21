@@ -1,4 +1,4 @@
-package com.example.usecases;
+package com.example.application.usecases;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
     }    
 
     @Override
-    public Optional<Product> getProductById(Long id) {
+    public Optional<Product> getProductById(Long id) {      
         Optional<Product> resOptional = productRepo.getProductById(id);
         return resOptional;
     }

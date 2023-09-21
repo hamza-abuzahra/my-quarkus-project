@@ -1,4 +1,4 @@
-package com.example.presenters;
+package com.example.application.controller;
 
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
@@ -6,13 +6,14 @@ import jakarta.ws.rs.QueryParam;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Logger;
 
+import com.example.application.usecases.CreateProductUseCase;
+import com.example.application.usecases.DeleteProductUseCase;
+import com.example.application.usecases.GetProductByIdUseCase;
+import com.example.application.usecases.GetProductsUseCase;
+import com.example.application.usecases.UpdateProductUseCase;
 import com.example.domain.Product;
-import com.example.usecases.CreateProductUseCase;
-import com.example.usecases.DeleteProductUseCase;
-import com.example.usecases.GetProductByIdUseCase;
-import com.example.usecases.GetProductsUseCase;
-import com.example.usecases.UpdateProductUseCase;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -42,6 +43,7 @@ public class ProductResource {
     private UpdateProductUseCase updateProductUseCase;
     @Inject
     private DeleteProductUseCase deleteProductUseCase;
+    Logger logger = Logger.getLogger(ProductResource.class.getName());
 
 
     @GET
@@ -72,15 +74,20 @@ public class ProductResource {
     }
 
     @POST
-    public Response createProduct(@Valid Product product){
+    public Response createProductEndpoint(@Valid Product product){
         try{
             if (product.getId() != null){
+                logger.info("I am here for trying cus id is provided");
+
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
             }
+            logger.info("creating alright");
             createProductUseCase.createProduct(product);
-            return Response.ok(product.getId()).build();
+            logger.info("creating done");
+            return Response.ok("Product added successfully").build();
         }
         catch(Exception e) {
+            logger.info("I am here for " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }

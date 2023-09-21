@@ -1,4 +1,4 @@
-package com.example.usecases;
+package com.example.application.usecases;
 
 import java.util.Optional;
 

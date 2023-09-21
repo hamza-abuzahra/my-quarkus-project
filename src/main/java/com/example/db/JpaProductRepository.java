@@ -11,6 +11,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 @ApplicationScoped
 public class JpaProductRepository implements IProductRepository, PanacheRepository<JpaProduct> {
@@ -50,6 +51,7 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
     }
 
     @Override
+    @Transactional
     public void createProduct(Product product) {
         persist(mapDomainToJpa(product));
     }
@@ -81,9 +83,9 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
     
     private static JpaProduct mapDomainToJpa(Product product){
         JpaProduct jpaProduct = new JpaProduct();
-        jpaProduct.setName(jpaProduct.getName());
-        jpaProduct.setDescribtion(jpaProduct.getDescribtion());
-        jpaProduct.setPrice(jpaProduct.getPrice());
+        jpaProduct.setName(product.getName());
+        jpaProduct.setDescribtion(product.getDescribtion());
+        jpaProduct.setPrice(product.getPrice());
         return jpaProduct;
     }
 }
