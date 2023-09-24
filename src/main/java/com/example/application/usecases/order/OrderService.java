@@ -14,7 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @ApplicationScoped
-public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOrderByIdUseCase{
+public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOrderByIdUseCase, OrderCountUseCase{
 
     @Inject
     private IOrderRepository orderRepository;
@@ -42,13 +42,18 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOr
     }
 
     @Override
-    public List<Order> getOrders() {
-        return orderRepository.allOrders();
+    public List<Order> getOrders(int offset, int size) {
+        return orderRepository.allOrders(offset, size);
     }
 
     @Override
     public Optional<Order> getOrderById(Long id) {
         return orderRepository.getOrderById(id);
+    }
+
+    @Override
+    public int orderCount() {
+        return orderRepository.allOrderCount();
     }
     
 }

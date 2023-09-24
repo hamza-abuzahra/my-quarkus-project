@@ -1,17 +1,23 @@
-package com.example.application.controller;
+package com.example.presenter;
 
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import org.jboss.resteasy.reactive.PartType;
+import org.jboss.resteasy.reactive.RestForm;
+
 import com.example.application.usecases.product.CreateProductUseCase;
 import com.example.application.usecases.product.DeleteProductUseCase;
 import com.example.application.usecases.product.GetProductByIdUseCase;
 import com.example.application.usecases.product.GetProductsUseCase;
+import com.example.application.usecases.product.ProductCountUseCase;
+import com.example.application.usecases.product.SaveImageProductUseCase;
 import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.Product;
 
@@ -30,7 +36,7 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
+// @Consumes(MediaType.APPLICATION_JSON)    
 public class ProductResource {
         
     @Inject
@@ -43,15 +49,19 @@ public class ProductResource {
     private UpdateProductUseCase updateProductUseCase;
     @Inject
     private DeleteProductUseCase deleteProductUseCase;
+    @Inject
+    private ProductCountUseCase productCountUseCase;
+    @Inject 
+    private SaveImageProductUseCase saveImageProductUseCase;
     Logger logger = Logger.getLogger(ProductResource.class.getName());
-
 
     @GET
     public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
             List<Product> listProducts = getProductsUseCase.getProducts(offset, size);
+            int pageCount = productCountUseCase.productCount();
             if (listProducts.size() == 0) {
-                return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "No prouducts found")).build();
+                return Response.status(Response.Status.NOT_FOUND).header("numberOfPages", pageCount).entity(Map.of("message", "No prouducts found")).build();
             }
             return Response.ok(listProducts).build();
         } catch (Exception e){
@@ -74,16 +84,12 @@ public class ProductResource {
     }
 
     @POST
-    public Response createProduct(@Valid Product product){
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    public Response createProduct(@RestForm @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @RestForm("image") List<File> files){
         try{
-            if (product.getId() != null){
-                logger.info("I am here for trying cus id is provided");
-
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
-            }
-            logger.info("creating alright");
+            List<String> imageIds = saveImageProductUseCase.saveImages(files);
+            product.setImageIds(imageIds);
             createProductUseCase.createProduct(product);
-            logger.info("creating done");
             return Response.ok("Product added successfully").build();
         }
         catch(Exception e) {
@@ -94,19 +100,18 @@ public class ProductResource {
 
     @PUT
     @Path("/{id}")
-    public Response updateProduct(@PathParam("id") Long id, @Valid Product product){
+    public Response updateProduct(@PathParam("id") Long id, @RestForm @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @RestForm("image") List<File> files){
         try{
-            if (product.getId() != null){
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
-            }
+            List<String> imageIds = saveImageProductUseCase.saveImages(files);
+            product.setImageIds(imageIds);
             Optional<Product> resOptional = updateProductUseCase.updateProduct(id, product);
             if (resOptional.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "Product not found")).build();
-            }   
+            }
             return Response.ok(resOptional.get()).build();
         }
         catch (Exception e){
-            logger.info("i am here" + e.getMessage());
+            logger.info("i am here " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }
@@ -117,7 +122,7 @@ public class ProductResource {
         try{
             boolean isDeleted = deleteProductUseCase.deleteProduct(id);
             if (isDeleted){
-                return Response.ok().entity(Map.of("message", "product with the id" + id + " deleted successfully")).build();
+                return Response.ok().entity(Map.of("message", "product with the id " + id + " deleted successfully")).build();
             }
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (Exception e) {

@@ -1,4 +1,4 @@
-package com.example.application.controller;
+package com.example.presenter;
 
 import java.util.List;
 import java.util.Map;
@@ -12,6 +12,7 @@ import com.example.domain.Order;
 
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -30,9 +31,9 @@ public class OrderResource {
     Logger logger = Logger.getLogger(OrderResource.class.getName());
 
     @GET
-    public Response getOrders(){
+    public Response getOrders(@PathParam("offset") @DefaultValue("0") int offset, @PathParam("size")  @DefaultValue("5") int size){
         try {
-            List<Order> orderList = getOrdersUseCase.getOrders();
+            List<Order> orderList = getOrdersUseCase.getOrders(offset, size);
             if (orderList.size() == 0) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "No orders found")).build();
             }
@@ -60,9 +61,6 @@ public class OrderResource {
     @POST
     public Response createOrder(@Valid Order order){
         try {
-            if (order.getId() != null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
-            }
             if (!createOrderUseCase.createOrder(order)) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "one of the given fields do not exist, either user or one of the products")).build();
             } 

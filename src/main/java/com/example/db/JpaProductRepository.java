@@ -26,7 +26,10 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
     public Optional<Product> getProductById(Long id) {
         Product product = null;
         try {
-            product = mapJpaToDomain(findById(id));
+            JpaProduct jpaProduct = findById(id);
+            if (jpaProduct != null){
+                product = mapJpaToDomain(jpaProduct);
+            }
         } catch (Exception e){
             e.printStackTrace();
         }
@@ -48,6 +51,11 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
         saved.setDescribtion(product.getDescribtion());
         persist(saved);
         return Optional.of(mapJpaToDomain(saved));
+    }
+
+    @Override
+    public int allProductsCount() {
+        return findAll().list().size();
     }
 
     @Override
@@ -78,6 +86,7 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
         product.setName(jpaProduct.getName());
         product.setDescribtion(jpaProduct.getDescribtion());
         product.setPrice(jpaProduct.getPrice());
+        product.setImageIds(jpaProduct.getImageIds());
         return product;
     }
     
@@ -86,6 +95,9 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
         jpaProduct.setName(product.getName());
         jpaProduct.setDescribtion(product.getDescribtion());
         jpaProduct.setPrice(product.getPrice());
+        jpaProduct.setImageIds(product.getImageIds());
         return jpaProduct;
     }
+
+    
 }

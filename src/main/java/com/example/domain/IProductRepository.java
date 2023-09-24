@@ -5,6 +5,7 @@ import java.util.Optional;
 
 public interface IProductRepository {
     public List<Product> allProducts(int offset, int size);
+    public int allProductsCount();
     public Optional<Product> getProductById(Long id);
     public Optional<Product> update(Product product);
     public void createProduct(Product product);

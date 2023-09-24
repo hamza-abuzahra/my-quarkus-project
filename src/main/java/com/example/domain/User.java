@@ -7,7 +7,7 @@ public class User {
     
     private Long id;
     
-    @NotBlank(message="name can not be blank")
+    @NotBlank(message="User name can not be blank")
     private String fname;
 
     private String lname;

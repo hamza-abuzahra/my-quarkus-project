@@ -1,5 +1,7 @@
 package com.example.domain;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -11,20 +13,27 @@ public class Product {
     
     private Long id;
     
-    @NotBlank(message="Name can not be blank.")
+    @NotBlank(message="Product name cannot be blank")
     private String name;
     
     private String describtion;
  
-    @Positive(message="Price must be a positive number.")
+    @Positive(message="Product price must be positive")
     private float price;
-    
+
+    private List<String> imageIds;
+
     public Product(String name, String desc, float price) {
         this.name = name;
         this.describtion = desc;
         this.price = price;
     }
-
+    public Product(Long id, String name, String desc, float price) {
+        this.id = id;
+        this.name = name;
+        this.describtion = desc;
+        this.price = price;
+    }
     public Long getId() {
         return id;
     }
@@ -56,5 +65,13 @@ public class Product {
     public void setPrice(float price) {
         this.price = price;
     }
+    public List<String> getImageIds() {
+        return imageIds;
+    }
+
+    public void setImageIds(List<String> imageIds) {
+        this.imageIds = imageIds;
+    }
+
     
 }

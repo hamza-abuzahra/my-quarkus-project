@@ -20,8 +20,8 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
     }
 
     @Override
-    public List<Order> allOrders() {
-        List<JpaOrder> jpaOrders = findAll(Sort.descending("id")).list();
+    public List<Order> allOrders(int offset, int size) {
+        List<JpaOrder> jpaOrders = findAll(Sort.descending("id")).page(offset, size).list();
         return mapJpaListToDomainList(jpaOrders);
     }
 
@@ -53,6 +53,11 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
         return jpaOrders.stream()
             .map(JpaOrderRepository::mapJpaToDomain)
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public int allOrderCount() {
+        return findAll().list().size();
     }
 
 }
