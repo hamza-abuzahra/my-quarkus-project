@@ -18,7 +18,6 @@ public class userEntityTest {
     @Test
     public void testUserInitialization() {
         User user = new User(1L, "hamza", "abuzahra", "example@email.co");
-
         // check entities attributes
         assertEquals(1L, user.getId());
         assertEquals("hamza", user.getFname());
@@ -34,4 +33,24 @@ public class userEntityTest {
         assertEquals("User name can not be blank", violations.get(0));
     }
 
+    @Test
+    public void testUserValidationEmailNotValid() {
+        User invalidEmailUser = new User(1L, "hamza", "", "example");
+        ArrayList<String> violations = validator.violations(invalidEmailUser);
+        assertEquals("email not valid", violations.get(0));
+    }
+
+    @Test
+    public void testUserValidationEmailEmpty() {
+        User invalidEmailUser = new User(1L, "hamza", "", "");
+        ArrayList<String> violations = validator.violations(invalidEmailUser);
+        assertEquals("email not provided", violations.get(0));
+    }
+
+    @Test
+    public void testUserValidationOk() {
+        User invalidEmailUser = new User(1L, "hamza", "", "example@email.com");
+        ArrayList<String> violations = validator.violations(invalidEmailUser);
+        assertEquals(0, violations.size());
+    }
 }

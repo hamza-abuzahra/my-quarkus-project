@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
+
 
 import com.example.domain.IProductRepository;
 import com.example.domain.Product;
@@ -30,12 +32,18 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
     public ProductService(IProductRepository products){
         this.productRepo = products;
     }
+    Logger logger = Logger.getLogger(ProductService.class.getName());
 
     @Override
     public List<Product> getProducts(int offset, int size) {
         List<Product> productsList = productRepo.allProducts(offset, size);
         return productsList;
     }    
+    
+    @Override
+    public int productCount() {
+        return productRepo.allProductsCount();
+    }
 
     @Override
     public Optional<Product> getProductById(Long id) {      
@@ -63,6 +71,7 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
             return Optional.empty();
         }
     }
+
     @Override
     @Transactional
     public boolean deleteProduct(Long id){
@@ -90,11 +99,6 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
             e.printStackTrace();
         }  
         return imageIds;
-    }
-
-    @Override
-    public int productCount() {
-        return productRepo.allProductsCount();
     }
 
     @Override

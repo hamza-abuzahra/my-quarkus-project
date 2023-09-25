@@ -1,4 +1,4 @@
-package com.example;
+package com.example.db;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -63,6 +63,34 @@ public class ProductRepositoryTest {
     }
 
     @Test
+    public void testGetProductCount() {
+        // given
+        Product product = new Product("apple", "a red delicious apple", 12.3f);
+        Product product2 = new Product("table", "big table for 6", 120.99f);
+        Product product3 = new Product("car", "very fast car", 15000.7f);
+        repository.createProduct(product);        
+        repository.createProduct(product2);
+        repository.createProduct(product3);
+
+        // when
+        int productCount = repository.allProductsCount();
+
+        // then
+        assertEquals(3, productCount);
+    }
+    
+    @Test
+    public void testGetProductCountEmpty() {
+        // given
+
+        // when
+        int productCount = repository.allProductsCount();
+
+        // then
+        assertEquals(0, productCount);
+    }
+
+    @Test
     @Transactional
     public void testGetProductByIdOk() {
         // given
@@ -99,8 +127,7 @@ public class ProductRepositoryTest {
         repository.createProduct(product);
 
         // when
-        Product updatedProduct = new Product("car", "very nice car", 12000.0f);
-        updatedProduct.setId(2L);
+        Product updatedProduct = new Product(2L, "car", "very nice car", 12000.0f);
         Optional<Product> resOptional = repository.update(updatedProduct);
 
         // then
@@ -113,26 +140,30 @@ public class ProductRepositoryTest {
     public void testUpdateNonExistingProduct() {
         // given
         // when
-        Product updatedProduct = new Product("car", "beautiful car", 12f);
-        updatedProduct.setId(15L);
+        Product updatedProduct = new Product(15L, "car", "beautiful car", 12f);
         Optional<Product> resOptional = repository.update(updatedProduct);
 
         // then
         assertTrue(resOptional.isEmpty());
-        Optional<Product> resOptional2 = repository.getProductById(3L);
-        assertTrue(resOptional2.isEmpty());
+    }
+
+    @Test
+    public void testUpdateProductNullId() {
+        Product noIdProduct = new Product("apple", "beautiful car", 23.4f);
+        Optional<Product> resOptional = repository.update(noIdProduct);
+        assertTrue(resOptional.isEmpty());
     }
 
     @Test
     @Transactional
     public void testCreateProduct() {
         // given
-        Product newProduct = new Product("new product", "new product", 23.8f);
+        Product newProduct = new Product(10L, "new product", "new product", 23.8f);
         // when 
         repository.createProduct(newProduct);
 
         // then
-        assertEquals(repository.allProducts(0, 2).get(0).getName(), "new product");
+        assertEquals(repository.getProductById(1L).get().getName(), "new product");
     }
 
     @Test

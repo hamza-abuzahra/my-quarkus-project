@@ -10,5 +10,5 @@ public interface IOrderRepository {
     // public Optional<Order> update(Order order);
     public void createOrder(Order order);
     // public boolean deleteOrderById(Long id);
-    // public void deleteAllOrders();
+    public void deleteAllOrders();
 }

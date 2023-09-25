@@ -18,8 +18,13 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
 
     @Override
     public List<Product> allProducts(int offset, int size) {
-        List<JpaProduct> jpaProducts = findAll(Sort.descending("name")).page(Page.of(offset, size)).list();
+        List<JpaProduct> jpaProducts = findAll(Sort.ascending("name")).page(Page.of(offset, size)).list();
         return mapJpaListToDomainList(jpaProducts);
+    }
+    
+    @Override
+    public int allProductsCount() {
+        return findAll().list().size();
     }
 
     @Override
@@ -40,7 +45,9 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
     public Optional<Product> update(Product product) {
         // JpaProduct jpaProduct = mapDomainToJpa(product);
         final Long id = product.getId();
-    
+        if (id == null){
+            return Optional.empty();
+        } 
         Optional<JpaProduct> savedOpt = findByIdOptional(id);
         if (savedOpt.isEmpty()){
             return Optional.empty();
@@ -49,15 +56,11 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
         saved.setName(product.getName());
         saved.setPrice(product.getPrice());
         saved.setDescribtion(product.getDescribtion());
+        saved.setImageIds(product.getImageIds());
         persist(saved);
         return Optional.of(mapJpaToDomain(saved));
     }
-
-    @Override
-    public int allProductsCount() {
-        return findAll().list().size();
-    }
-
+    
     @Override
     @Transactional
     public void createProduct(Product product) {

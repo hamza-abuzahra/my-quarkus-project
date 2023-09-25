@@ -15,14 +15,14 @@ import jakarta.enterprise.context.ApplicationScoped;
 public class JpaOrderRepository implements IOrderRepository, PanacheRepository<JpaOrder> {
 
     @Override
-    public void createOrder(Order order) {
-        persist(mapDomainToJpa(order));
-    }
-
-    @Override
     public List<Order> allOrders(int offset, int size) {
-        List<JpaOrder> jpaOrders = findAll(Sort.descending("id")).page(offset, size).list();
+        List<JpaOrder> jpaOrders = findAll(Sort.ascending("id")).page(offset, size).list();
         return mapJpaListToDomainList(jpaOrders);
+    }
+    
+    @Override
+    public int allOrderCount() {
+        return findAll().list().size();
     }
 
     @Override
@@ -34,6 +34,15 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
         return Optional.of(mapJpaToDomain(order));
     }
 
+    @Override
+    public void createOrder(Order order) {
+        persist(mapDomainToJpa(order));
+    }
+
+    @Override
+    public void deleteAllOrders() {
+        deleteAll();
+    }
     private static JpaOrder mapDomainToJpa(Order order){
         JpaOrder jpaOrder = new JpaOrder();
         jpaOrder.setUserId(order.getUserId());
@@ -53,11 +62,6 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
         return jpaOrders.stream()
             .map(JpaOrderRepository::mapJpaToDomain)
             .collect(Collectors.toList());
-    }
-
-    @Override
-    public int allOrderCount() {
-        return findAll().list().size();
     }
 
 }

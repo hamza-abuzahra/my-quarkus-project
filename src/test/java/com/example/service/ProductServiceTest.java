@@ -1,4 +1,4 @@
-package com.example;
+package com.example.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,9 +16,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.example.application.usecases.product.CreateProductUseCase;
+import com.example.application.usecases.product.DeleteProductImagesUseCase;
 import com.example.application.usecases.product.DeleteProductUseCase;
 import com.example.application.usecases.product.GetProductByIdUseCase;
 import com.example.application.usecases.product.GetProductsUseCase;
+import com.example.application.usecases.product.ProductCountUseCase;
+import com.example.application.usecases.product.SaveImageProductUseCase;
 import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.IProductRepository;
 import com.example.domain.Product;
@@ -36,6 +39,8 @@ public class ProductServiceTest {
     @Inject
     private GetProductsUseCase getProductsUseCase;
     @Inject
+    private ProductCountUseCase productCountUseCase;
+    @Inject
     private GetProductByIdUseCase getProductByIdUseCase;
     @Inject
     private CreateProductUseCase createProductUseCase;
@@ -43,6 +48,11 @@ public class ProductServiceTest {
     private UpdateProductUseCase updateProductUseCase;
     @Inject
     private DeleteProductUseCase deleteProductUseCase;
+    @Inject
+    private DeleteProductImagesUseCase deleteProductImagesUseCase;
+    @Inject 
+    private SaveImageProductUseCase saveImageProductUseCase;
+
 
     private ArgumentCaptor<Product> productArgumentCaptor = ArgumentCaptor.forClass(Product.class);
 
@@ -59,6 +69,7 @@ public class ProductServiceTest {
         when(productRepository.update(new Product(1L,"object", "desc", 1.1f))).thenReturn(Optional.empty());
         when(productRepository.deleteProductById(1L)).thenReturn(false);
         when(productRepository.deleteProductById(2L)).thenReturn(true);
+        when(productRepository.allProductsCount()).thenReturn(2);
     }
     
     @Test
@@ -67,6 +78,13 @@ public class ProductServiceTest {
         assertEquals(2, getProductsUseCase.getProducts(0, 2).size());        
         // then
         verify(productRepository).allProducts(0, 2);
+    }
+
+    @Test 
+    public void testProductCount() {
+        assertEquals(2, productCountUseCase.productCount());
+
+        verify(productRepository).allProductsCount();
     }
 
     @Test

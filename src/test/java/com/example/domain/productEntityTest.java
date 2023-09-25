@@ -27,6 +27,18 @@ public class productEntityTest {
         assertEquals("apple", product.getName());
         assertEquals("red apple", product.getDescribtion());
         assertEquals(12f, product.getPrice());
+        assertEquals(null, product.getImageIds());
+    }
+    @Test
+    public void testProductConstructorNoId() {
+        Product product = new Product("apple", "red apple", 12f);
+
+        // check entities attributes
+        assertEquals(null, product.getId());
+        assertEquals("apple", product.getName());
+        assertEquals("red apple", product.getDescribtion());
+        assertEquals(12f, product.getPrice());
+        assertEquals(null, product.getImageIds());
     }
 
     @Test 
