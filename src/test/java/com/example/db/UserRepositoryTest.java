@@ -29,9 +29,9 @@ public class UserRepositoryTest {
         // when
         userRepository.createUser(user);
         // then 
-        assertEquals(userRepository.getUserById(1L).get().getFname(), "Hamza");
+        assertEquals(userRepository.getUserById(3L).get().getFname(), "Hamza");
     }
-
+    
     @Test
     public void testGetUserByIdOk() {
         User user = new User(1L, "Hamza 1", "Abuzahra", "example@email.com");
@@ -50,5 +50,25 @@ public class UserRepositoryTest {
 
         // then
         assertTrue(resOptional.isEmpty());
+    }
+
+    @Test
+    public void testIsEmailUsedOk() {
+        // given
+        User user = new User(1L, "Hamza 1", "Abuzahra", "example@email.com");
+        userRepository.createUser(user);
+        
+        // when
+        boolean used = userRepository.isEmailUsed(user.getEmail());
+        assertTrue(used);
+    }
+    
+    @Test
+    public void testIsEmailUsedNotOk() {
+        // given
+        
+        // when
+        boolean used = userRepository.isEmailUsed("notusedemail@example.com");
+        assertFalse(used);
     }
 }

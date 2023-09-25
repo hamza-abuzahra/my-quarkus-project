@@ -1,5 +1,6 @@
 package com.example.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.constraints.NotEmpty;
@@ -19,6 +20,7 @@ public class Order {
         this.productId = productId;
     }
     public Order() {
+        this.productId = new ArrayList<Long>();
     }
     public Long getId() {
         return id;

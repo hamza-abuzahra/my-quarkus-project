@@ -1,5 +1,6 @@
 package com.example.domain;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.validation.constraints.NotBlank;
@@ -27,12 +28,15 @@ public class Product {
         this.name = name;
         this.describtion = desc;
         this.price = price;
+        this.imageIds = new ArrayList<String>();
     }
     public Product(Long id, String name, String desc, float price) {
         this.id = id;
         this.name = name;
         this.describtion = desc;
         this.price = price;
+        this.imageIds = new ArrayList<String>();
+
     }
     public Long getId() {
         return id;

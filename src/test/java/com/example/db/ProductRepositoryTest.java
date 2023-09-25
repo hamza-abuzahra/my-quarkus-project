@@ -45,7 +45,7 @@ public class ProductRepositoryTest {
         List<Product> res = repository.allProducts(0, 2);
 
         // then
-        assertEquals(res.get(0).getName(), "table");
+        assertEquals(res.get(0).getName(), "apple");
         assertEquals(res.get(1).getName(), "car");
         assertEquals(res.size(), 2);
     }
@@ -98,7 +98,7 @@ public class ProductRepositoryTest {
         repository.createProduct(product);
 
         // when
-        Optional<Product> resOptional = repository.getProductById(1L);
+        Optional<Product> resOptional = repository.getProductById(4L);
         
         // then
         assertNotNull(resOptional);
@@ -127,7 +127,7 @@ public class ProductRepositoryTest {
         repository.createProduct(product);
 
         // when
-        Product updatedProduct = new Product(2L, "car", "very nice car", 12000.0f);
+        Product updatedProduct = new Product(5L, "car", "very nice car", 12000.0f);
         Optional<Product> resOptional = repository.update(updatedProduct);
 
         // then
@@ -163,7 +163,7 @@ public class ProductRepositoryTest {
         repository.createProduct(newProduct);
 
         // then
-        assertEquals(repository.getProductById(1L).get().getName(), "new product");
+        assertEquals(repository.getProductById(6L).get().getName(), "new product");
     }
 
     @Test

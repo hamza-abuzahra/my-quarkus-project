@@ -15,10 +15,13 @@ import com.example.domain.IOrderRepository;
 import com.example.domain.Order;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.transaction.annotations.Rollback;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @QuarkusTest
+@Transactional
+@Rollback(true)
 public class OrderRepositoryTest {
     
     @Inject
@@ -99,10 +102,8 @@ public class OrderRepositoryTest {
         Order order = new Order(1L, List.of(1L, 3L));
         orderRepository.createOrder(order);
         
-        List<Order> orders = orderRepository.allOrders(0, 10);
-        logger.info(orders.toString());
         // when 
-        Optional<Order> resOptional = orderRepository.getOrderById(1L);
+        Optional<Order> resOptional = orderRepository.getOrderById(5L);
 
         // then
         assertFalse(resOptional.isEmpty());
@@ -123,12 +124,12 @@ public class OrderRepositoryTest {
     @Transactional
     public void testCreateOrder() {
         // given
-        Order order = new Order(3L, 1L, List.of(2L, 3L));
-
+        Order order = new Order(1L, List.of(2L, 3L));
+        
         // when
         orderRepository.createOrder(order); 
 
         // then
-        assertEquals(orderRepository.getOrderById(1L).get().getId(), 1L);
+        assertEquals(orderRepository.getOrderById(4L).get().getUserId(), 1L);
     }
 }

@@ -24,6 +24,21 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOr
     private IUserRepository userRepository;
 
     @Override
+    public List<Order> getOrders(int offset, int size) {
+        return orderRepository.allOrders(offset, size);
+    }
+
+    @Override
+    public int orderCount() {
+        return orderRepository.allOrderCount();
+    }
+
+    @Override
+    public Optional<Order> getOrderById(Long id) {
+        return orderRepository.getOrderById(id);
+    }
+
+    @Override
     @Transactional
     public boolean createOrder(Order order) {
         // check if user exists
@@ -40,20 +55,4 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOr
         orderRepository.createOrder(order);
         return true;
     }
-
-    @Override
-    public List<Order> getOrders(int offset, int size) {
-        return orderRepository.allOrders(offset, size);
-    }
-
-    @Override
-    public Optional<Order> getOrderById(Long id) {
-        return orderRepository.getOrderById(id);
-    }
-
-    @Override
-    public int orderCount() {
-        return orderRepository.allOrderCount();
-    }
-    
 }

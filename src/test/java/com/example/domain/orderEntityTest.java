@@ -21,7 +21,7 @@ public class orderEntityTest {
         Order order = new Order();
 
         assertEquals(null, order.getUserId());
-        assertEquals(null, order.getProductId());
+        assertEquals(new ArrayList<Long>(), order.getProductId());
         assertEquals(null, order.getId());        
     }
     @Test

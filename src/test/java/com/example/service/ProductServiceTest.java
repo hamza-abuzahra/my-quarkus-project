@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +15,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 
 import com.example.application.usecases.product.CreateProductUseCase;
 import com.example.application.usecases.product.DeleteProductImagesUseCase;
@@ -62,9 +64,10 @@ public class ProductServiceTest {
         List<Product> returnedList = new ArrayList<Product>();
         returnedList.add(0, new Product("apple", "red", 15f));
         returnedList.add(1, new Product("table", "dinning table", 2333f));
-        when(productRepository.allProducts(0, 2)).thenReturn(returnedList);
+        when(productRepository.allProducts(0, 2)).thenReturn(returnedList);        
+        when(productRepository.allProducts(0, 4)).thenReturn(new ArrayList<Product>());
         when(productRepository.getProductById(1L)).thenReturn(Optional.empty());        
-        when(productRepository.getProductById(2L)).thenReturn(Optional.of(new Product("table", "dinning table", 2333f)));
+        when(productRepository.getProductById(2L)).thenReturn(Optional.of(new Product(2L, "table", "dinning table", 2333f)));
         when(productRepository.update(new Product(2L,"object", "desc", 1.1f))).thenReturn(Optional.of(new Product("object", "desc", 1.1f)));
         when(productRepository.update(new Product(1L,"object", "desc", 1.1f))).thenReturn(Optional.empty());
         when(productRepository.deleteProductById(1L)).thenReturn(false);
@@ -79,6 +82,15 @@ public class ProductServiceTest {
         // then
         verify(productRepository).allProducts(0, 2);
     }
+
+    @Test
+    public void testGetProductsEmpty() {
+        // when
+        assertEquals(0, getProductsUseCase.getProducts(0, 4).size());        
+        // then
+        verify(productRepository).allProducts(0, 4);
+    }
+
 
     @Test 
     public void testProductCount() {
@@ -134,18 +146,31 @@ public class ProductServiceTest {
 
         assertEquals(capturedProduct.getName(), updateProduct.getName());
     }
+
+    @Test
+    @Transactional
+    public void testUpdateProductIdNotFound() {
+        // given
+        Product updateProduct = new Product("object", "desc", 1.1f);
+        // when // then
+        updateProductUseCase.updateProduct(1L, updateProduct);
+
+        verify(productRepository, never()).update(Mockito.any(Product.class));
+    }
     
     @Test
     @Transactional
     public void testDeleteExists() {
         assertFalse(deleteProductUseCase.deleteProduct(1L));
-        verify(productRepository).deleteProductById(1L);
+        verify(productRepository).getProductById(1L);
+        verify(productRepository, never()).deleteProductById(1L);
     }
 
     @Test
     @Transactional
     public void testDeleteDoesNotExist() {
         assertTrue(deleteProductUseCase.deleteProduct(2L));
+        verify(productRepository).getProductById(2L);
         verify(productRepository).deleteProductById(2L);
     }
 

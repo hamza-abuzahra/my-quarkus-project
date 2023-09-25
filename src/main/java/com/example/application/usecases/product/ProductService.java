@@ -75,11 +75,16 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
     @Override
     @Transactional
     public boolean deleteProduct(Long id){
-        Product deleteProduct = productRepo.getProductById(id).get();
-        if (productRepo.deleteProductById(id)) {
-            if (deleteLinkedImages(deleteProduct)) {
-                return true;
+        try {
+            Optional<Product> deleteProduct = productRepo.getProductById(id);
+            if (!deleteProduct.isEmpty()) {
+                if (deleteLinkedImages(deleteProduct.get())) {
+                    productRepo.deleteProductById(id);
+                    return true;
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return false;
     }
