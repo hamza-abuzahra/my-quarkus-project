@@ -62,7 +62,7 @@ public class OrderResource {
     public Response createOrder(@Valid Order order){
         try {
             if (!createOrderUseCase.createOrder(order)) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "one of the given fields do not exist, either user or one of the products")).build();
+                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("violations", "one of the given fields do not exist, either user or one of the products")).build();
             } 
             return Response.ok("order added successfully").build();
             

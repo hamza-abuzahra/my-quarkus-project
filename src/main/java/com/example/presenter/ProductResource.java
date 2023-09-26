@@ -63,7 +63,7 @@ public class ProductResource {
             if (listProducts.size() == 0) {
                 return Response.status(Response.Status.NOT_FOUND).header("numberOfPages", pageCount).entity(Map.of("message", "No prouducts found")).build();
             }
-            return Response.ok(listProducts).build();
+            return Response.ok(Map.of("products", listProducts, "numOfPages", pageCount)) .build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
@@ -100,6 +100,7 @@ public class ProductResource {
 
     @PUT
     @Path("/{id}")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response updateProduct(@PathParam("id") Long id, @RestForm @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @RestForm("image") List<File> files){
         try{
             List<String> imageIds = saveImageProductUseCase.saveImages(files);

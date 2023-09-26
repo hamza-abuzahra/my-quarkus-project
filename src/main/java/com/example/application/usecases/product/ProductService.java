@@ -1,21 +1,12 @@
 package com.example.application.usecases.product;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Logger;
 
-import javax.imageio.ImageIO;
-
-
 import com.example.domain.IProductRepository;
+import com.example.domain.ImageSaveService;
 import com.example.domain.Product;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,12 +16,14 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class ProductService implements GetProductsUseCase, GetProductByIdUseCase, 
                 CreateProductUseCase, UpdateProductUseCase, DeleteProductUseCase, 
-                ProductCountUseCase, SaveImageProductUseCase, DeleteProductImagesUseCase {
+                ProductCountUseCase, SaveImageProductUseCase {
 
     private final IProductRepository productRepo;
-    private final String imagesFolderPath = "src/main/resources/META-INF/resources/";
-    public ProductService(IProductRepository products){
+    private final ImageSaveService imageSaveService;
+    public final String imagesFolderPath = "src/main/resources/META-INF/resources/";
+    public ProductService(IProductRepository products, ImageSaveService imageSaveService){
         this.productRepo = products;
+        this.imageSaveService = imageSaveService;
     }
     Logger logger = Logger.getLogger(ProductService.class.getName());
 
@@ -62,7 +55,7 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
     public Optional<Product> updateProduct(Long id, Product product){
         Optional<Product> oldProduct = productRepo.getProductById(id);
         if (!oldProduct.isEmpty()){
-            deleteLinkedImages(oldProduct.get());
+            imageSaveService.deleteLinkedImages(oldProduct.get(), imagesFolderPath);
             product.setId(id);
             Optional<Product> res = productRepo.update(product);
             return res;
@@ -78,12 +71,15 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
         try {
             Optional<Product> deleteProduct = productRepo.getProductById(id);
             if (!deleteProduct.isEmpty()) {
-                if (deleteLinkedImages(deleteProduct.get())) {
+                logger.info("im here because");
+                if (imageSaveService.deleteLinkedImages(deleteProduct.get(), imagesFolderPath)) {
                     productRepo.deleteProductById(id);
                     return true;
                 }
-            }
+            } 
+            logger.info("wooww ");
         } catch (Exception e) {
+            logger.info("im here because" + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -91,37 +87,25 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
 
     @Override
     public List<String> saveImages(List<File> files) {
-        List<String> imageIds = new ArrayList<>();
-        try {
-            for (File file : files) {
-                String imageId = UUID.randomUUID().toString();
-                BufferedImage image = ImageIO.read(file);
-                File imageFile = new File(imagesFolderPath + "images/" + imageId + ".jpg");
-                ImageIO.write(image, "jpg", imageFile); 
-                imageIds.add("/images/"+imageId+".jpg");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }  
-        return imageIds;
+        return imageSaveService.saveImages(files, imagesFolderPath);
     }
 
-    @Override
-    public boolean deleteLinkedImages(Product product) {
-        try {
-            for (String filePath : product.getImageIds()) {
-                Path imagePath = Paths.get(imagesFolderPath + filePath);
-                try {
-                    Files.deleteIfExists(imagePath);
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
+    // @Override
+    // public boolean deleteLinkedImages(Product product) {
+    //     try {
+    //         for (String filePath : product.getImageIds()) {
+    //             Path imagePath = Paths.get(imagesFolderPath + filePath);
+    //             try {
+    //                 Files.deleteIfExists(imagePath);
+    //             } catch (IOException e){
+    //                 e.printStackTrace();
+    //             }
+    //         }
+    //         return true;
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    //     return false;
+    // }
 }
 

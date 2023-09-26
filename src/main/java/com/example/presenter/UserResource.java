@@ -44,11 +44,8 @@ public class UserResource {
     @POST
     public Response createUser(@Valid User user){
         try {
-            if (user.getId() != null) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "id must be null")).build();
-            }
             if (!createUserUseCase.createUser(user)) {
-                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("viloations", "one of the given fields do not exist, either user or one of the products")).build();
+                return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("message", "Email is taken")).build();
             } 
             return Response.ok("User added successfully").build();
             

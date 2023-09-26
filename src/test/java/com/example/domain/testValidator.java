@@ -10,10 +10,10 @@ import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 
 @ApplicationScoped
-public class testValidator {
+public class TestValidator {
     private Validator validator;
 
-    public testValidator() {
+    public TestValidator() {
         validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 

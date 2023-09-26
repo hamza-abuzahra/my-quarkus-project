@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,7 +19,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import com.example.application.usecases.product.CreateProductUseCase;
-import com.example.application.usecases.product.DeleteProductImagesUseCase;
 import com.example.application.usecases.product.DeleteProductUseCase;
 import com.example.application.usecases.product.GetProductByIdUseCase;
 import com.example.application.usecases.product.GetProductsUseCase;
@@ -26,6 +26,7 @@ import com.example.application.usecases.product.ProductCountUseCase;
 import com.example.application.usecases.product.SaveImageProductUseCase;
 import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.IProductRepository;
+import com.example.domain.ImageSaveService;
 import com.example.domain.Product;
 
 import io.quarkus.test.InjectMock;
@@ -38,6 +39,8 @@ public class ProductServiceTest {
 
     @InjectMock
     private IProductRepository productRepository;
+    @InjectMock
+    private ImageSaveService imageSaveService;
     @Inject
     private GetProductsUseCase getProductsUseCase;
     @Inject
@@ -50,8 +53,6 @@ public class ProductServiceTest {
     private UpdateProductUseCase updateProductUseCase;
     @Inject
     private DeleteProductUseCase deleteProductUseCase;
-    @Inject
-    private DeleteProductImagesUseCase deleteProductImagesUseCase;
     @Inject 
     private SaveImageProductUseCase saveImageProductUseCase;
 
@@ -73,6 +74,8 @@ public class ProductServiceTest {
         when(productRepository.deleteProductById(1L)).thenReturn(false);
         when(productRepository.deleteProductById(2L)).thenReturn(true);
         when(productRepository.allProductsCount()).thenReturn(2);
+        when(imageSaveService.deleteLinkedImages(Mockito.any(Product.class), Mockito.any(String.class))).thenReturn(true);
+        when(imageSaveService.saveImages(Mockito.anyList(), Mockito.any(String.class))).thenReturn(List.of("hi", "hello"));
     }
     
     @Test
@@ -172,7 +175,14 @@ public class ProductServiceTest {
         assertTrue(deleteProductUseCase.deleteProduct(2L));
         verify(productRepository).getProductById(2L);
         verify(productRepository).deleteProductById(2L);
+        verify(imageSaveService).deleteLinkedImages(Mockito.any(Product.class), Mockito.anyString());
     }
-
-
+    
+    @Test
+    public void testSaveImage() {
+        File file = new File("src/main/resources/META-INF/resources/images/26a891c5-2c82-433a-8e14-c92b0d724720.jpg");
+        saveImageProductUseCase.saveImages(List.of(file));
+        verify(imageSaveService).saveImages(Mockito.any(), Mockito.any(String.class));
+    }
+ 
 }

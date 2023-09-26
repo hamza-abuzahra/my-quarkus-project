@@ -3,6 +3,7 @@ package com.example.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.smallrye.common.constraint.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ public class Product {
     private Long id;
     
     @NotBlank(message="Product name cannot be blank")
+    @NotNull
     private String name;
     
     private String describtion;
@@ -36,8 +38,8 @@ public class Product {
         this.describtion = desc;
         this.price = price;
         this.imageIds = new ArrayList<String>();
-
     }
+
     public Long getId() {
         return id;
     }

@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 
@@ -17,7 +18,7 @@ import jakarta.inject.Inject;
 public class productEntityTest {
     
     @Inject
-    private testValidator validator;
+    private TestValidator validator;
 
     @Test
     public void testProductInitialization() {
