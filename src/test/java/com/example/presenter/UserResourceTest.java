@@ -29,14 +29,15 @@ public class UserResourceTest {
     @Transactional
     void setup() {
         User first = new User(1L, "apple", "a green apple", "good@exampl.e");        
+        User second = new User(2L, "table", "a white table", "good@exapl.e");
+        User third = new User(3L, "book", "a black book", "good@expl.e");
+        User fourth = new User(4L, "cave", "a very cold and dark cave", "good@examp.e");
         userResource.createUser(first);
-        User second = new User(2L, "table", "a white table", "good@exampl.e");
         userResource.createUser(second);
-        User third = new User(3L, "book", "a black book", "good@exampl.e");
         userResource.createUser(third);        
-        User fourth = new User(4L, "cave", "a very cold and dark cave", "good@exampl.e");
         userResource.createUser(fourth);
     }
+
     @Test
     public void testGetProductByIdEndpointInvalid(){
         given()
@@ -49,9 +50,9 @@ public class UserResourceTest {
     @Test
     public void testGetUserByIdEndpoint(){
         given()
-        .when().get("/api/users/1")
+        .when().get("/api/users/13")
         .then()
-        .statusCode(200).body("fname", is("apple"));
+        .statusCode(200).body("fname", is("cave"));
     }
     @Test 
     public void testCreateUserEndpointOk(){
@@ -89,5 +90,5 @@ public class UserResourceTest {
         .contentType(ContentType.JSON)
         .body("violations[0].message", 
         is("email not valid"));
-}
+    }
 }

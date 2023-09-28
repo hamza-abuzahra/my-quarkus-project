@@ -71,15 +71,12 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
         try {
             Optional<Product> deleteProduct = productRepo.getProductById(id);
             if (!deleteProduct.isEmpty()) {
-                logger.info("im here because");
                 if (imageSaveService.deleteLinkedImages(deleteProduct.get(), imagesFolderPath)) {
                     productRepo.deleteProductById(id);
                     return true;
                 }
             } 
-            logger.info("wooww ");
         } catch (Exception e) {
-            logger.info("im here because" + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -89,23 +86,5 @@ public class ProductService implements GetProductsUseCase, GetProductByIdUseCase
     public List<String> saveImages(List<File> files) {
         return imageSaveService.saveImages(files, imagesFolderPath);
     }
-
-    // @Override
-    // public boolean deleteLinkedImages(Product product) {
-    //     try {
-    //         for (String filePath : product.getImageIds()) {
-    //             Path imagePath = Paths.get(imagesFolderPath + filePath);
-    //             try {
-    //                 Files.deleteIfExists(imagePath);
-    //             } catch (IOException e){
-    //                 e.printStackTrace();
-    //             }
-    //         }
-    //         return true;
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    //     return false;
-    // }
 }
 

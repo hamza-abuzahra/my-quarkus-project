@@ -2,12 +2,11 @@ package com.example.application.usecases.order;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
+
 
 import com.example.domain.IOrderRepository;
-import com.example.domain.IProductRepository;
-import com.example.domain.IUserRepository;
 import com.example.domain.Order;
-import com.example.domain.User;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,10 +17,8 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOr
 
     @Inject
     private IOrderRepository orderRepository;
-    @Inject
-    private IProductRepository productRepository;
-    @Inject
-    private IUserRepository userRepository;
+
+    Logger logger = Logger.getLogger(OrderService.class.getName());
 
     @Override
     public List<Order> getOrders(int offset, int size) {
@@ -41,18 +38,11 @@ public class OrderService implements CreateOrderUseCase, GetOrdersUseCase, GetOr
     @Override
     @Transactional
     public boolean createOrder(Order order) {
-        // check if user exists
-        Optional<User> user = userRepository.getUserById(order.getUserId());
-        if (user.isEmpty()){
-            return false; 
+        try {
+            orderRepository.createOrder(order);
+            return true;
+        } catch (Exception e){
+            return false;
         }
-        // check if added products exist
-        for (Long productId : order.getProductId()){
-            if (productRepository.getProductById(productId).isEmpty()){
-                return false;
-            }
-        }
-        orderRepository.createOrder(order);
-        return true;
     }
 }

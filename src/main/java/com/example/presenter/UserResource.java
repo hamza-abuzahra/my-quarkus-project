@@ -45,8 +45,10 @@ public class UserResource {
     public Response createUser(@Valid User user){
         try {
             if (!createUserUseCase.createUser(user)) {
+                logger.info("not successfully added");
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("message", "Email is taken")).build();
             } 
+            logger.info("user added successfully");
             return Response.ok("User added successfully").build();
             
         } catch (Exception e) {

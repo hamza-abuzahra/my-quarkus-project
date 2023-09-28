@@ -59,11 +59,12 @@ public class ProductResource {
     public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
             List<Product> listProducts = getProductsUseCase.getProducts(offset, size);
-            int pageCount = productCountUseCase.productCount();
+            int totalProductsCount = productCountUseCase.productCount();
             if (listProducts.size() == 0) {
-                return Response.status(Response.Status.NOT_FOUND).header("numberOfPages", pageCount).entity(Map.of("message", "No prouducts found")).build();
+                return Response.status(Response.Status.NOT_FOUND).header("numberOfPages", totalProductsCount).entity(Map.of("message", "No prouducts found")).build();
             }
-            return Response.ok(Map.of("products", listProducts, "numOfPages", pageCount)) .build();
+            int pagesN = totalProductsCount/size;
+            return Response.ok(Map.of("products", listProducts, "numOfPages", pagesN)) .build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }

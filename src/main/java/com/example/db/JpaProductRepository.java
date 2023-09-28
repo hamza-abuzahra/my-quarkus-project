@@ -19,7 +19,11 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
     @Override
     public List<Product> allProducts(int offset, int size) {
         List<JpaProduct> jpaProducts = findAll(Sort.ascending("name")).page(Page.of(offset, size)).list();
-        return mapJpaListToDomainList(jpaProducts);
+        List<Product> products = jpaProducts.stream().map((jpaProduct) -> {
+            Product product = new Product(jpaProduct.getId(), jpaProduct.getName(), jpaProduct.getDescribtion(), jpaProduct.getPrice(), jpaProduct.getImageIds());
+            return product;
+        }).collect(Collectors.toList());
+        return products;
     }
     
     @Override
@@ -29,42 +33,42 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
 
     @Override
     public Optional<Product> getProductById(Long id) {
-        Product product = null;
         try {
             JpaProduct jpaProduct = findById(id);
             if (jpaProduct != null){
-                product = mapJpaToDomain(jpaProduct);
+                Product product = new Product(jpaProduct.getId(), jpaProduct.getName(), jpaProduct.getDescribtion(), jpaProduct.getPrice(), jpaProduct.getImageIds());
+                return Optional.of(product);
             }
         } catch (Exception e){
             e.printStackTrace();
         }
-        return Optional.ofNullable(product);
+        return Optional.empty();
     }
 
     @Override
     public Optional<Product> update(Product product) {
         // JpaProduct jpaProduct = mapDomainToJpa(product);
         final Long id = product.getId();
-        if (id == null){
-            return Optional.empty();
-        } 
-        Optional<JpaProduct> savedOpt = findByIdOptional(id);
-        if (savedOpt.isEmpty()){
-            return Optional.empty();
-        }
-        JpaProduct saved = savedOpt.get();
-        saved.setName(product.getName());
-        saved.setPrice(product.getPrice());
-        saved.setDescribtion(product.getDescribtion());
-        saved.setImageIds(product.getImageIds());
-        persist(saved);
-        return Optional.of(mapJpaToDomain(saved));
+        if (id != null){
+            JpaProduct saved = findById(id);
+            if (saved != null){
+                saved.setName(product.getName());
+                saved.setPrice(product.getPrice());
+                saved.setDescribtion(product.getDescribtion());
+                saved.setImageIds(product.getImageIds());
+                persist(saved);
+                Product updatedProduct = new Product(saved.getId(), saved.getName(), saved.getDescribtion(), saved.getPrice(), saved.getImageIds());
+                return Optional.of(updatedProduct);
+            }
+        }             
+        return Optional.empty();
     }
     
     @Override
     @Transactional
     public void createProduct(Product product) {
-        persist(mapDomainToJpa(product));
+        JpaProduct jpaProduct = new JpaProduct(product.getName(), product.getDescribtion(), product.getPrice(), product.getImageIds());
+        persist(jpaProduct);
     }
 
     @Override
@@ -72,35 +76,11 @@ public class JpaProductRepository implements IProductRepository, PanacheReposito
         return this.deleteById(id);
     }
 
+    // for test purposes
     @Override
     public void deleteAllProducts() {
         deleteAll();
-    }
-
-    private List<Product> mapJpaListToDomainList(List<JpaProduct> jpaProducts) {
-        return jpaProducts.stream()
-            .map(JpaProductRepository::mapJpaToDomain)
-            .collect(Collectors.toList());
-    }
-
-    private static Product mapJpaToDomain(JpaProduct jpaProduct){
-        Product product = new Product();
-        product.setId(jpaProduct.getId());
-        product.setName(jpaProduct.getName());
-        product.setDescribtion(jpaProduct.getDescribtion());
-        product.setPrice(jpaProduct.getPrice());
-        product.setImageIds(jpaProduct.getImageIds());
-        return product;
-    }
-    
-    private static JpaProduct mapDomainToJpa(Product product){
-        JpaProduct jpaProduct = new JpaProduct();
-        jpaProduct.setName(product.getName());
-        jpaProduct.setDescribtion(product.getDescribtion());
-        jpaProduct.setPrice(product.getPrice());
-        jpaProduct.setImageIds(product.getImageIds());
-        return jpaProduct;
-    }
-
-    
+        String sql = "Select setval('jpaproduct_seq', 1)";
+        list(sql);
+    }    
 }

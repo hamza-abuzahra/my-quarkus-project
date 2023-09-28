@@ -21,24 +21,25 @@ public class orderEntityTest {
     public void testOrderInitialization() {
         Order order = new Order();
 
-        assertEquals(null, order.getUserId());
-        assertEquals(new ArrayList<Long>(), order.getProductId());
+        assertEquals(null, order.getUser());
+        assertEquals(new ArrayList<Long>(), order.getProducts());
         assertEquals(null, order.getId());        
     }
     @Test
     public void testOrderInitializationAllArgs() {
-        List<Long> productIds = new ArrayList<>();
-        productIds.add(1L);
-        Order order = new Order(2L, productIds);
-        assertEquals(2L, order.getUserId());
-        assertEquals(1L, order.getProductId().get(0));
+        Product product = new Product("laptop", "predator gaming laptop", 2311.5f);
+        List<Product> products = List.of(product);
+        User user = new User("first name", "last name", "good@email.com");
+        Order order = new Order(user, products);
+        assertEquals("first name", order.getUser().getFname());
+        assertEquals("laptop", order.getProducts().get(0).getName());
     }
 
     @Test
     public void testOrderValidationNoUserId() {
-        List<Long> productIds = new ArrayList<>();
-        productIds.add(1L);
-        Order order = new Order(null, productIds);
+        Product product = new Product("laptop", "predator gaming laptop", 2311.5f);
+        List<Product> products = List.of(product);
+        Order order = new Order(null, products);
 
         List<String> violations = validator.violations(order);
         assertEquals("user id must be provided", violations.get(0));
@@ -46,16 +47,18 @@ public class orderEntityTest {
 
     @Test 
     public void testOrderValidationNoProductIds() {
-        Order order = new Order(2L, null);
+        User user = new User("first name", "last name", "good@email.com");
+        Order order = new Order(user, null);
         List<String> violations = validator.violations(order);
         assertEquals("products cannot be empty", violations.get(0));
     }
 
     @Test
     public void testOrderValidationOk() {
-        List<Long> productIds = new ArrayList<>();
-        productIds.add(1L);
-        Order order = new Order(2L, productIds);
+        Product product = new Product("laptop", "predator gaming laptop", 2311.5f);
+        List<Product> products = List.of(product);
+        User user = new User("first name", "last name", "good@email.com");
+        Order order = new Order(user, products);
         List<String> violations = validator.violations(order);
         assertEquals(0, violations.size());
     }

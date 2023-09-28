@@ -13,21 +13,26 @@ import jakarta.transaction.Transactional;
 @ApplicationScoped
 public class JpaUserRepository implements IUserRepository, PanacheRepository<JpaUser>{
 
+
     @Override
     public Optional<User> getUserById(Long id) {
-        User user = null;
         try {
-            user = mapJpaToDomain(findById(id));
+            JpaUser jpaUser = findById(id);
+            User user = new User(jpaUser.getId(), jpaUser.getFname(), jpaUser.getLname(), jpaUser.getEmail());
+            return Optional.of(user);
         } catch (Exception e){
             e.printStackTrace();
         }
-        return Optional.ofNullable(user);
+        return Optional.empty();    
+
     }
 
     @Override
     @Transactional
     public void createUser(User user) {
-        persist(mapDomainToJpa(user));
+        JpaUser jpaUser = new JpaUser(user.getFname(), user.getLname(), user.getEmail());
+        persist(jpaUser);
+        
     }
 
     @Override
@@ -39,19 +44,12 @@ public class JpaUserRepository implements IUserRepository, PanacheRepository<Jpa
         return false;
     }
 
-    private static JpaUser mapDomainToJpa(User user){
-        JpaUser jpaUser = new JpaUser();
-        jpaUser.setFname(user.getFname());
-        jpaUser.setLname(user.getLname());        
-        jpaUser.setEmail(user.getEmail());
-        return jpaUser;
-    }
-    private static User mapJpaToDomain(JpaUser jpaUser){
-        User user = new User();
-        user.setId(jpaUser.getId());
-        user.setFname(jpaUser.getFname());
-        user.setLname(jpaUser.getLname());
-        user.setEmail(jpaUser.getEmail());
-        return user;
+    // for testing purposes
+    @Override
+    @Transactional
+    public void deleteAllUsers() {
+        deleteAll();
+        String sql = "Select setval('jpauser_seq', 1)";
+        list(sql);
     }
 }

@@ -6,6 +6,7 @@ import static org.hamcrest.CoreMatchers.is;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,12 +18,15 @@ import com.example.domain.Product;
 import com.example.domain.User;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.transaction.annotations.Rollback;
 import io.restassured.http.ContentType;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 @QuarkusTest
 @TestInstance(Lifecycle.PER_CLASS)
+@Transactional
+@Rollback(true)
 public class OrderResourceTest {
     
     @Inject
@@ -32,33 +36,33 @@ public class OrderResourceTest {
     @Inject 
     private ProductResource productResource;
 
+    Logger logger = Logger.getLogger(OrderResourceTest.class.getName());
+
     @BeforeAll
     @Transactional
     void setup() {
-        User user = new User(1L, "apple", "a green apple", "good@exampl.e");        
+        User user = new User(10L, "apple", "a yellow apple", "good@exapl.e"); 
         userResource.createUser(user);
-        Product product = new Product("apple", "a green apple", 12);        
+        Product product = new Product(18L,"apple", "a red apple", 12);        
         productResource.createProduct(product, new ArrayList<File>());
-        
-        Order order = new Order(1L, List.of(1L));
+        Order order = new Order(user, List.of(product));
         orderResource.createOrder(order);
     }
-    
     @Test
     public void testGetOrders() {
         given()
         .when().get("/api/orders")
         .then()
         .statusCode(200)
-        .body("$.size()", is(1), "[0].userId", is(1));
+        .body("$.size()", is(1), "[0].user.id", is(10));
     }
 
     @Test
     public void testGetOrderByIdOk() {
         given()
-        .when().get("/api/orders/1")
+        .when().get("/api/orders/9")
         .then()
-        .statusCode(200).body("userId", is(1));
+        .statusCode(200).body("user.id", is(10));
     }
 
     @Test 
@@ -71,10 +75,11 @@ public class OrderResourceTest {
     }
 
     @Test 
+    @Transactional
     public void testCreateOrderValid() {
         given()
         .contentType(ContentType.JSON)
-        .body("{\"userId\":\"1\", \"productId\":[\"1\"]}")
+        .body("{\"user\":{\"id\":\"10\", \"fname\":\"apple\", \"lname\":\"a yellow apple\", \"email\":\"good@exapl.e\"}, \"products\":[{\"id\":\"18\",\"name\":\"apple\",\"describtion\":\"a red apple\", \"price\":\"12\"}]}")
         .when().post("/api/orders")
         .then()
         .statusCode(200)
@@ -85,7 +90,7 @@ public class OrderResourceTest {
     public void testCreateOrderNotValid() {
         given()
         .contentType(ContentType.JSON)
-        .body("{\"userId\":\"2\", \"productId\":[\"1\"]}")
+        .body("{\"user\":{\"id\":\"1\", \"fname\":\"apple\", \"lname\":\"a yellow apple\", \"email\":\"good@exapl.e\"}, \"products\":[{\"id\":\"18\",\"name\":\"apple\",\"describtion\":\"a red apple\", \"price\":\"12\"}]}")
         .when().post("/api/orders")
         .then()
         .statusCode(400)
@@ -93,10 +98,10 @@ public class OrderResourceTest {
     }
 
     @Test
-    public void testCreateOrderValidationMissingUserId() {
+    public void testCreateOrderValidationMissingUser() {
         given()
         .contentType(ContentType.JSON)
-        .body("{\"productId\":[\"1\"]}")
+        .body("{\"products\":[{\"id\":\"18\",\"name\":\"apple\",\"describtion\":\"a red apple\", \"price\":\"12\"}]}")
         .when().post("/api/orders")
         .then()
         .statusCode(400)
@@ -108,7 +113,7 @@ public class OrderResourceTest {
     public void testCreateOrderNotValidMissingProducts() {
         given()
         .contentType(ContentType.JSON)
-        .body("{\"userId\":\"2\"}")
+        .body("{\"user\":{\"id\":\"1\", \"fname\":\"apple\", \"lname\":\"a yellow apple\", \"email\":\"good@exapl.e\"}}")
         .when().post("/api/orders")
         .then()
         .statusCode(400)
@@ -119,7 +124,7 @@ public class OrderResourceTest {
     public void testCreateOrderNotValidEmptyProducts() {
         given()
         .contentType(ContentType.JSON)
-        .body("{\"userId\":\"2\", \"productId\":[]}")
+        .body("{\"user\":{\"id\":\"1\", \"fname\":\"apple\", \"lname\":\"a yellow apple\", \"email\":\"good@exapl.e\"}, \"products\":[]}")
         .when().post("/api/orders")
         .then()
         .statusCode(400)

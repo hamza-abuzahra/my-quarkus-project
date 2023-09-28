@@ -26,6 +26,9 @@ public class Product {
 
     private List<String> imageIds;
 
+    private List<Order> orders;
+
+
     public Product(String name, String desc, float price) {
         this.name = name;
         this.describtion = desc;
@@ -38,6 +41,15 @@ public class Product {
         this.describtion = desc;
         this.price = price;
         this.imageIds = new ArrayList<String>();
+        this.orders = new ArrayList<Order>();
+    }
+    public Product(Long id, String name, String desc, float price, List<String> imageids) {
+        this.id = id;
+        this.name = name;
+        this.describtion = desc;
+        this.price = price;
+        this.imageIds = imageids;
+        this.orders = new ArrayList<Order>();
     }
 
     public Long getId() {
@@ -78,6 +90,11 @@ public class Product {
     public void setImageIds(List<String> imageIds) {
         this.imageIds = imageIds;
     }
-
+    public List<Order> getOrders() {
+        return orders;
+    }
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
     
 }

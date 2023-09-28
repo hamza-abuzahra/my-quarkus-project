@@ -10,5 +10,5 @@ public interface IUserRepository {
     // public Optional<User> update(User user);
     void createUser(User user);
     // public boolean deleteUsertById(Long id);
-    // public void deleteAllUsers();
+    public void deleteAllUsers();
 }

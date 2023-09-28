@@ -12,15 +12,16 @@ public class Order {
     
     private Long id;
     @NotNull(message="user id must be provided")
-    private Long userId;
+    private User user;
     @NotEmpty(message="products cannot be empty")
-    private List<Long> productId;
-    public Order(Long userId, List<Long> productId) {
-        this.userId = userId;
-        this.productId = productId;
+    private List<Product> products;
+    
+    public Order(User user, List<Product> products) {
+        this.user = user;
+        this.products = products;
     }
     public Order() {
-        this.productId = new ArrayList<Long>();
+        this.products = new ArrayList<Product>();
     }
     public Long getId() {
         return id;
@@ -28,16 +29,16 @@ public class Order {
     public void setId(Long id) {
         this.id = id;
     }
-    public Long getUserId() {
-        return userId;
+    public User getUser() {
+        return user;
     }
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(User user) {
+        this.user = user;
     }
-    public List<Long> getProductId() {
-        return productId;
+    public List<Product> getProducts() {
+        return products;
     }
-    public void setProductId(List<Long> productId) {
-        this.productId = productId;
+    public void setProducts(List<Product> products) {
+        this.products = products;
     }
 }

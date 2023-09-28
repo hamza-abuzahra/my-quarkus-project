@@ -2,30 +2,45 @@ package com.example.db;
 
 import java.util.List;
 
+import io.smallrye.common.constraint.NotNull;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Entity
 @Data
+@AllArgsConstructor
 public class JpaOrder {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
     
-    @NotNull(message="user id cannot be null")
-    private Long userId;
+    @NotNull
+    @ManyToOne(optional=false)
+    @JoinColumn(name="user_id", referencedColumnName="id")
+    private JpaUser user;
     
     @NotEmpty(message="products cannot be empty")
-    private List<Long> productId;
+    @ManyToMany
+    @JoinTable(
+        name = "product_order",
+        joinColumns = @JoinColumn(name="order_id", referencedColumnName = "id"),
+        inverseJoinColumns = @JoinColumn(name="product_id", referencedColumnName = "id")
+    )
+    private List<JpaProduct> products;
     
-    public JpaOrder(Long userId, List<Long> productId) {
-        this.userId = userId;
-        this.productId = productId;
+    public JpaOrder(JpaUser user, List<JpaProduct> products) {
+        this.user = user;
+        this.products = products;
     }
     public JpaOrder() {
     }
