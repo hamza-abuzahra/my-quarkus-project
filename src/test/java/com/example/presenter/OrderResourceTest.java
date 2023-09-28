@@ -54,7 +54,7 @@ public class OrderResourceTest {
         .when().get("/api/orders")
         .then()
         .statusCode(200)
-        .body("$.size()", is(1), "[0].user.id", is(10));
+        .body("orders.size()", is(1), "orders[0].user.id", is(10), "numOfPages", is(1));
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.example.domain.Product;
 import com.example.domain.User;
 
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
+import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
@@ -22,7 +23,7 @@ public class JpaOrderRepository implements IOrderRepository, PanacheRepository<J
 
     @Override
     public List<Order> allOrders(int offset, int size) {
-        List<JpaOrder> jpaOrders = findAll(Sort.ascending("id")).page(offset, size).list();
+        List<JpaOrder> jpaOrders = findAll(Sort.ascending("id")).page(Page.of(offset, size)).list();
         return mapJpaListToDomainList(jpaOrders);
     }
     

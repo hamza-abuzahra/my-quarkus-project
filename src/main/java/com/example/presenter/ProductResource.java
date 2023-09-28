@@ -63,7 +63,7 @@ public class ProductResource {
             if (listProducts.size() == 0) {
                 return Response.status(Response.Status.NOT_FOUND).header("numberOfPages", totalProductsCount).entity(Map.of("message", "No prouducts found")).build();
             }
-            int pagesN = totalProductsCount/size;
+            int pagesN = (int) Math.ceil((double) productCountUseCase.productCount() / size);
             return Response.ok(Map.of("products", listProducts, "numOfPages", pagesN)) .build();
         } catch (Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();

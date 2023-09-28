@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 import com.example.application.usecases.order.CreateOrderUseCase;
 import com.example.application.usecases.order.GetOrderByIdUseCase;
 import com.example.application.usecases.order.GetOrdersUseCase;
+import com.example.application.usecases.order.OrderCountUseCase;
 import com.example.domain.Order;
 
 import io.quarkus.arc.ArcUndeclaredThrowableException;
@@ -19,6 +20,7 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 @Path("api/orders")
@@ -30,18 +32,21 @@ public class OrderResource {
     private GetOrdersUseCase getOrdersUseCase;
     @Inject
     private GetOrderByIdUseCase getOrderByIdUseCase;
+    @Inject
+    private OrderCountUseCase orderCountUseCase;
     
     Logger logger = Logger.getLogger(OrderResource.class.getName());
 
     @GET
-    public Response getOrders(@PathParam("offset") @DefaultValue("0") int offset, @PathParam("size")  @DefaultValue("5") int size){
+    public Response getOrders(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size")  @DefaultValue("5") int size){
         try {
             List<Order> orderList = getOrdersUseCase.getOrders(offset, size);
             if (orderList.size() == 0) {
                 return Response.status(Response.Status.NOT_FOUND).entity(Map.of("message", "No orders found")).build();
             }
+            int pagesN = (int) Math.ceil((double) orderCountUseCase.orderCount() / size);
             // Map.of("products", orderList, "numOfPages", pageCount/size)
-            return Response.ok(orderList).build();
+            return Response.ok(Map.of("orders", orderList, "numOfPages", pagesN)).build();
         } catch (Exception e) {
             logger.info("I am here for " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
