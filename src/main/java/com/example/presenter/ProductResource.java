@@ -20,6 +20,7 @@ import com.example.application.usecases.product.SaveImageProductUseCase;
 import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.Product;
 
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -38,7 +39,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
 // @Consumes(MediaType.APPLICATION_JSON)    
-// @Authenticated
+@Authenticated
 public class ProductResource {
         
     @Inject

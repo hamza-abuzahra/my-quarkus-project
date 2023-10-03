@@ -61,7 +61,7 @@ public class UserResource {
 
     @POST
     @RolesAllowed("admin")
-    public Response createUser(CreateUserRequest createUserRequest){
+    public Response createUser(CreateUserRequest createUserRequest) {
         try {
             String result = createUserUseCase.createUser(createUserRequest.getUser(), createUserRequest.getRoles()); 
             if (result.length() > 0){

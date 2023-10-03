@@ -17,8 +17,10 @@ import com.example.domain.User;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 
+@ApplicationScoped
 public class KeycloakServiceImplementation implements IdentityServiceInterface {
 
     @RestClient
