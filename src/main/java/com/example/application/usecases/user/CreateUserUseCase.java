@@ -1,7 +1,9 @@
 package com.example.application.usecases.user;
 
+import java.util.List;
+
 import com.example.domain.User;
 
 public interface CreateUserUseCase {
-    boolean createUser(User user);
+    String createUser(User user, List<String> roles);
 }

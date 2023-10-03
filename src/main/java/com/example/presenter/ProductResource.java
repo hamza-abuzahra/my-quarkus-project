@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.jboss.resteasy.reactive.PartType;
-import org.jboss.resteasy.reactive.RestForm;
 
 import com.example.application.usecases.product.CreateProductUseCase;
 import com.example.application.usecases.product.DeleteProductUseCase;
@@ -21,11 +20,13 @@ import com.example.application.usecases.product.SaveImageProductUseCase;
 import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.Product;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
+import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -37,6 +38,7 @@ import jakarta.ws.rs.core.Response;
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
 // @Consumes(MediaType.APPLICATION_JSON)    
+// @Authenticated
 public class ProductResource {
         
     @Inject
@@ -56,6 +58,7 @@ public class ProductResource {
     Logger logger = Logger.getLogger(ProductResource.class.getName());
 
     @GET
+    @RolesAllowed("admin")
     public Response getAllProdcuts(@QueryParam("offset") @DefaultValue("0") int offset, @QueryParam("size") @DefaultValue("5") int size){
         try {
             List<Product> listProducts = getProductsUseCase.getProducts(offset, size);
@@ -86,7 +89,7 @@ public class ProductResource {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response createProduct(@RestForm @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @RestForm("image") List<File> files){
+    public Response createProduct(@FormParam("product") @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @FormParam("image") List<File> files){
         try{
             List<String> imageIds = saveImageProductUseCase.saveImages(files);
             product.setImageIds(imageIds);
@@ -102,7 +105,7 @@ public class ProductResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response updateProduct(@PathParam("id") Long id, @RestForm @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @RestForm("image") List<File> files){
+    public Response updateProduct(@PathParam("id") Long id, @FormParam("product") @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @FormParam("image") List<File> files){
         try{
             List<String> imageIds = saveImageProductUseCase.saveImages(files);
             product.setImageIds(imageIds);

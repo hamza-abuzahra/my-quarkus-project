@@ -3,6 +3,8 @@ package com.example.domain;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.smallrye.common.constraint.NotNull;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
@@ -29,6 +31,18 @@ public class Product {
     private List<Order> orders;
 
 
+    public Product(String productJsonString) {
+        try {
+            Product product = new ObjectMapper().readValue(productJsonString, Product.class);
+            this.name = product.getName();
+            this.describtion = product.getDescribtion();
+            this.price = product.getPrice();
+            this.imageIds = new ArrayList<String>();
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        
+    }
     public Product(String name, String desc, float price) {
         this.name = name;
         this.describtion = desc;

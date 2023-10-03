@@ -13,6 +13,7 @@ import com.example.application.usecases.order.OrderCountUseCase;
 import com.example.domain.Order;
 
 import io.quarkus.arc.ArcUndeclaredThrowableException;
+import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.DefaultValue;
@@ -24,6 +25,7 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 @Path("api/orders")
+@Authenticated
 public class OrderResource {
     
     @Inject
@@ -48,7 +50,7 @@ public class OrderResource {
             // Map.of("products", orderList, "numOfPages", pageCount/size)
             return Response.ok(Map.of("orders", orderList, "numOfPages", pagesN)).build();
         } catch (Exception e) {
-            logger.info("I am here for " + e.getMessage());
+            logger.info("I am here for 2" + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
     }
@@ -76,7 +78,7 @@ public class OrderResource {
             if (e instanceof ArcUndeclaredThrowableException) {
                 return Response.status(Response.Status.BAD_REQUEST).entity(Map.of("violations", "one of the given fields do not exist, either user or one of the products")).build();
             }
-            logger.info("I am here for " + e.getMessage());
+            logger.info("I am here for 1 " + e.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
         

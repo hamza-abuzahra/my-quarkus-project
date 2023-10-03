@@ -21,7 +21,7 @@ public class JpaUserRepository implements IUserRepository, PanacheRepository<Jpa
             User user = new User(jpaUser.getId(), jpaUser.getFname(), jpaUser.getLname(), jpaUser.getEmail());
             return Optional.of(user);
         } catch (Exception e){
-            e.printStackTrace();
+            // e.printStackTrace();
         }
         return Optional.empty();    
 
@@ -32,7 +32,6 @@ public class JpaUserRepository implements IUserRepository, PanacheRepository<Jpa
     public void createUser(User user) {
         JpaUser jpaUser = new JpaUser(user.getFname(), user.getLname(), user.getEmail());
         persist(jpaUser);
-        
     }
 
     @Override
