@@ -1,4 +1,4 @@
-package com.example.db;
+package com.example.infrastructure.db;
 
 import java.util.List;
 

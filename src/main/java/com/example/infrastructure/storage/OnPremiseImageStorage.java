@@ -1,4 +1,4 @@
-package com.example.storage;
+package com.example.infrastructure.storage;
 
 import java.awt.image.BufferedImage;
 import java.io.File;

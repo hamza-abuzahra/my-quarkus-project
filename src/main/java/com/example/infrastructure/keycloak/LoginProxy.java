@@ -1,4 +1,4 @@
-package com.example.application.usecases.user;
+package com.example.infrastructure.keycloak;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
