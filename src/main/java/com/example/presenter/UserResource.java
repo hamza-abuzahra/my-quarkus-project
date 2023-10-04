@@ -11,6 +11,9 @@ import com.example.application.usecases.user.GetUserByIdUseCase;
 import com.example.application.usecases.user.LoginUseCase;
 import com.example.domain.User;
 
+import io.quarkus.security.Authenticated;
+import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -24,19 +27,24 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 
 @Path("api/users")
+@Authenticated
 public class UserResource {
 
     @Inject
     private CreateUserUseCase createUserUseCase;
     @Inject
     private GetUserByIdUseCase getUserByIdUseCase;
-    @Inject 
+    @Inject
     private LoginUseCase loginUseCase;
+
+    @Inject 
+    SecurityIdentity securityIdentity;
 
     Logger logger = Logger.getLogger(UserResource.class.getName());
 
     @GET
     @Path("/{id}")
+    @PermitAll
     public Response getUserById(@PathParam("id") Long id){
         try{            
             Optional<User> resOrder = getUserByIdUseCase.getUserById(id);
@@ -48,20 +56,23 @@ public class UserResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(Map.of("message", e.getMessage())).build();
         }
     }
+
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/login")
-    public Response login(UserCredentialsRequest userRequest){
+    @PermitAll
+    public Response login(@Valid UserCredentialsRequest userRequest){
+        logger.info(securityIdentity.isAnonymous() + "");
         String accessToken = loginUseCase.login(userRequest);
         if (accessToken != null){
             return Response.ok(accessToken).build();
         }
-        return Response.status(Status.UNAUTHORIZED).build();
+        return Response.status(Status.BAD_REQUEST).build();
     }
 
     @POST
     @RolesAllowed("admin")
-    public Response createUser(CreateUserRequest createUserRequest) {
+    public Response createUser(@Valid CreateUserRequest createUserRequest) {
         try {
             String result = createUserUseCase.createUser(createUserRequest.getUser(), createUserRequest.getRoles()); 
             if (result.length() > 0){

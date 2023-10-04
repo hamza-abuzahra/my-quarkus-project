@@ -1,7 +1,11 @@
 package com.example.application.usecases.user;
 
+import jakarta.validation.constraints.NotEmpty;
+
 public class UserCredentialsRequest {
+    @NotEmpty
     private String Username;
+    @NotEmpty
     private String Password;
     public String getUsername() {
         return Username;

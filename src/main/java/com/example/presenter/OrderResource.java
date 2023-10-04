@@ -13,7 +13,6 @@ import com.example.application.usecases.order.OrderCountUseCase;
 import com.example.domain.Order;
 
 import io.quarkus.arc.ArcUndeclaredThrowableException;
-import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.DefaultValue;
@@ -25,7 +24,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 @Path("api/orders")
-@Authenticated
 public class OrderResource {
     
     @Inject

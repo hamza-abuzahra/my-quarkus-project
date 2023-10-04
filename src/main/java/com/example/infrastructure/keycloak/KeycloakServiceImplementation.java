@@ -34,7 +34,7 @@ public class KeycloakServiceImplementation implements IdentityServiceInterface {
             .serverUrl("http://localhost:9090")
             .realm("master")
             .clientId("test-client")
-            .clientSecret("J1a22JvKE7NvRQrhp1dKcROarAcDerNi")
+            .clientSecret("00I6DEH0SDdYTPqQxrKgHK8see5y8ye8")
             .username("admin")
             .password("admin")
             .grantType("password")
@@ -47,11 +47,12 @@ public class KeycloakServiceImplementation implements IdentityServiceInterface {
     }
 
     @Override
-    public String getToken(String clientId, String clientSecret, String grantType, String username, String password) {
+    public String getToken(String username, String password) {
         try{
-            Response response = loginClient.getToken(clientId, clientSecret, username, password, grantType);
+            Response response = loginClient.getToken("test", "OeXgcXGjXZ3bmwsI9bcjLgb7KrxEi43P", "password",username, password);
             return response.readEntity(String.class);
         } catch (ClientWebApplicationException e){
+            e.printStackTrace();
             return null;
         }
     }
@@ -65,23 +66,23 @@ public class KeycloakServiceImplementation implements IdentityServiceInterface {
         userRepresentation.setEmail(user.getEmail());
         userRepresentation.setEnabled(true);
         
-        Response ceratedUserRes = keycloak.realm("Demo").users().create(userRepresentation);
+        Response ceratedUserRes = keycloak.realm("test").users().create(userRepresentation);
         if (ceratedUserRes.getStatus() == 201) {
             List<RoleRepresentation> roleReps = roleRepresentationMapper(roles);
             URI location = ceratedUserRes.getLocation();
             String id = location.getPath().substring(location.getPath().lastIndexOf('/') + 1);
-            keycloak.realm("Demo").users().get(id).roles().realmLevel().add(roleReps);
+            keycloak.realm("test").users().get(id).roles().realmLevel().add(roleReps);
         }
         return ceratedUserRes.readEntity(String.class);
     }
 
     private List<RoleRepresentation> roleRepresentationMapper(List<String> roles){
-        List<RoleRepresentation> allRealmRoles = keycloak.realm("Demo").roles().list();
+        List<RoleRepresentation> allRealmRoles = keycloak.realm("test").roles().list();
         List<RoleRepresentation> finalRealmRoles = new ArrayList<RoleRepresentation>();
         for (String role : roles) {
             boolean roleExists = allRealmRoles.stream().anyMatch(realmRole -> realmRole.getName().equals(role));
             if (roleExists) {
-                RoleResource roleRep = keycloak.realm("Demo").roles().get(role);
+                RoleResource roleRep = keycloak.realm("test").roles().get(role);
                 finalRealmRoles.add(roleRep.toRepresentation());
             }
         }

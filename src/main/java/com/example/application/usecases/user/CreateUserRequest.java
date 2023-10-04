@@ -4,8 +4,12 @@ import java.util.List;
 
 import com.example.domain.User;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+
 public class CreateUserRequest {
-    private User user;
+    @NotNull
+    private @Valid User user;
     private List<String> roles;
     public User getUser() {
         return user;

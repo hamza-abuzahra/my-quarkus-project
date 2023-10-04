@@ -21,6 +21,7 @@ import com.example.application.usecases.product.UpdateProductUseCase;
 import com.example.domain.Product;
 
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -38,10 +39,9 @@ import jakarta.ws.rs.core.Response;
 
 @Path("/api/products")
 @Produces(MediaType.APPLICATION_JSON)
-// @Consumes(MediaType.APPLICATION_JSON)    
 @Authenticated
 public class ProductResource {
-        
+    
     @Inject
     private GetProductsUseCase getProductsUseCase;
     @Inject
@@ -76,6 +76,7 @@ public class ProductResource {
 
     @GET
     @Path("/{id}")
+    @PermitAll
     public Response getProductById(@PathParam("id") Long id){
         try{            
             Optional<Product> resProduct = getProductByIdUseCase.getProductById(id);
@@ -90,6 +91,7 @@ public class ProductResource {
 
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @PermitAll
     public Response createProduct(@FormParam("product") @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @FormParam("image") List<File> files){
         try{
             List<String> imageIds = saveImageProductUseCase.saveImages(files);
@@ -105,6 +107,7 @@ public class ProductResource {
 
     @PUT
     @Path("/{id}")
+    @PermitAll
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response updateProduct(@PathParam("id") Long id, @FormParam("product") @PartType(MediaType.APPLICATION_JSON) @Valid Product product, @FormParam("image") List<File> files){
         try{
@@ -124,6 +127,7 @@ public class ProductResource {
 
     @DELETE
     @Path("/{id}")
+    @PermitAll
     public Response deleteProduct(@PathParam("id") Long id){
         try{
             boolean isDeleted = deleteProductUseCase.deleteProduct(id);
